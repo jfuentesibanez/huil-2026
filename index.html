@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IA en el hospital · Taller práctico · HUIL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --fondo:#0f1215; --papel:#f7f6f2; --papel-suave:#b3b8bf; --linea:#343a40;
+  --acento:#ff5f6d; --acento-hondo:#c8102e; --coral:#ff876b; --verde:#5fd39a;
+  --sans:'Inter Tight','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --stage:radial-gradient(ellipse 100% 125% at 100% 0%,#3a1419,#1f1215 35%,var(--fondo) 75%);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; }
+body { font-family:var(--sans); background:var(--fondo); color:var(--papel); overflow:hidden; user-select:none; -webkit-font-smoothing:antialiased; }
+
+/* ---------- Stage ---------- */
+.slide { position:absolute; inset:0; display:none; align-items:center; justify-content:center; padding:8vh 8vw 10vh; overflow:hidden; background:var(--stage); isolation:isolate; }
+.slide.on { display:flex; animation:stage-in .6s var(--ease) both; }
+.inner { max-width:1280px; width:100%; position:relative; z-index:2; }
+@keyframes stage-in { from { opacity:0; } to { opacity:1; } }
+@keyframes content-in { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:none; } }
+@keyframes slow-reveal { from { transform:scale(1.06); filter:brightness(.7); } to { transform:scale(1); filter:brightness(1); } }
+.on .inner > :not(.clips):not(.step) { animation:content-in .75s var(--ease) both; }
+.on .inner > :nth-child(2) { animation-delay:.08s; } .on .inner > :nth-child(3) { animation-delay:.16s; } .on .inner > :nth-child(4) { animation-delay:.22s; }
+
+.kicker,.num { font-family:var(--sans); font-size:clamp(12px,1vw,16px); letter-spacing:.17em; text-transform:uppercase; font-weight:650; color:var(--acento); margin-bottom:3.3vh; }
+.kicker::before { content:''; display:inline-block; width:2.4em; height:2px; background:currentColor; margin-right:1em; vertical-align:middle; }
+.gigante { font-size:clamp(42px,6.8vw,112px); font-weight:600; line-height:1.02; letter-spacing:-.05em; text-wrap:balance; }
+.statement { font-size:clamp(27px,3.45vw,56px); font-weight:500; line-height:1.16; letter-spacing:-.03em; text-wrap:pretty; }
+.gigante strong,.statement strong { color:var(--acento); font-weight:inherit; }
+.sub { font-size:clamp(16px,1.45vw,23px); line-height:1.5; color:var(--papel-suave); margin-top:3.8vh; max-width:1050px; }
+.sub strong { color:var(--papel); font-weight:600; }
+.src-line { font-family:var(--mono); font-size:clamp(11px,.9vw,13px); letter-spacing:.06em; text-transform:uppercase; color:var(--papel-suave); margin-top:3vh; }
+.redflag { font-size:clamp(16px,1.45vw,23px); color:var(--coral); margin-top:3vh; line-height:1.5; }
+
+.step { opacity:0; transform:translateY(22px); transition:opacity .55s var(--ease),transform .65s var(--ease); }
+.step.on { opacity:1; transform:none; }
+.step:not(.on) { visibility:hidden; }
+
+/* Lists */
+.lista { list-style:none; margin-top:2vh; }
+.lista li { position:relative; font-size:clamp(20px,2.4vw,34px); line-height:1.28; padding:1.6vh 0 1.6vh 5.2em; border-top:1px solid var(--linea); }
+.lista li:last-child { border-bottom:1px solid var(--linea); }
+.lista li strong { color:var(--acento); font-weight:inherit; }
+.lista .n { position:absolute; left:0; top:calc(1.6vh + .45em); width:9em; font-family:var(--mono); color:var(--acento); font-size:.55em; letter-spacing:.08em; line-height:1.3; }
+.lista.compact li { font-size:clamp(17px,2vw,27px); padding:1.25vh 0 1.25vh 5.2em; }
+.lista li .meta { display:block; font-size:.6em; color:var(--papel-suave); margin-top:.3em; }
+.lista li.hot { color:var(--coral); }
+.lista.compact .n { top:calc(1.25vh + .4em); }
+.lista .min { float:right; font-family:var(--mono); font-size:.55em; color:var(--papel-suave); margin-top:.4em; }
+
+/* Chapters */
+.chapter { background:var(--acento-hondo); color:#fff; }
+.chapter .kicker,.chapter strong { color:#fff; }
+.chapter .kicker::before { display:none; }
+.chapter .inner { border-top:2px solid #fff; padding-top:5vh; }
+.chapter .gigante { font-size:clamp(50px,8.2vw,138px); max-width:1100px; }
+.chapter .gigante strong { font-weight:400; }
+.chapter .sub { color:#ffdfe2; max-width:900px; }
+.chapter::after { content:attr(data-mark); position:absolute; right:5vw; bottom:-.14em; font-size:clamp(230px,31vw,540px); line-height:1; font-weight:700; letter-spacing:-.09em; color:rgba(255,255,255,.08); z-index:0; }
+
+/* Cover */
+.cover::before { content:''; position:absolute; inset:0; z-index:0; background:radial-gradient(ellipse 70% 90% at 100% 100%,rgba(200,16,46,.55),rgba(200,16,46,.12) 45%,transparent 70%),radial-gradient(ellipse 50% 60% at 90% 10%,rgba(255,95,109,.18),transparent 70%),#0f1215; }
+.cover.on::before { animation:slow-reveal 9s var(--ease) both; }
+.cover .kicker { margin-bottom:7vh; }
+.cover .gigante { font-size:clamp(46px,6.7vw,108px); max-width:1180px; }
+.cover .presenter { margin-top:6vh; padding-top:2.2vh; border-top:1px solid rgba(255,255,255,.3); width:fit-content; min-width:320px; }
+.cover .presenter b { display:block; font-size:clamp(24px,2.4vw,38px); font-weight:600; letter-spacing:-.025em; }
+.cover .presenter span { color:#d8dde3; font-size:clamp(15px,1.3vw,20px); }
+.logo-roche { position:absolute; left:8vw; top:7vh; width:clamp(110px,11vw,170px); z-index:3; filter:invert(1) grayscale(1) brightness(2.2); mix-blend-mode:screen; }
+
+/* Impact */
+.impact .inner { max-width:1190px; text-align:center; }
+.impact .statement { font-size:clamp(30px,4.2vw,68px); line-height:1.17; }
+.impact .sub { margin-inline:auto; }
+.impact.claro { background:#ecebe5; color:#17191b; }
+.impact.claro .statement strong { color:#17191b; text-decoration:underline; text-decoration-color:var(--acento-hondo); text-decoration-thickness:.055em; text-underline-offset:.13em; }
+.impact.claro .sub { color:#4b4f55; }
+
+/* Photos */
+.slide.foto { padding:0; background:#000; }
+.slide.foto img { width:100%; height:100%; object-fit:cover; }
+.slide.foto.contain img { object-fit:contain; }
+.slide.foto.claro { background:#f7f7f5; }
+.slide.foto.on img { animation:photo-in 1.4s var(--ease) both; }
+@keyframes photo-in { from { transform:scale(1.035); } to { transform:scale(1); } }
+.slide.foto .cap { position:absolute; left:6vw; bottom:7vh; font-family:var(--mono); font-size:clamp(12px,1.1vw,16px); letter-spacing:.12em; text-transform:uppercase; color:var(--papel); background:rgba(15,18,21,.86); padding:.6em .9em; }
+.slide.foto.split { padding:0 6vw; background:#000; }
+.slide.foto.split .inner { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:5vw; align-items:center; max-width:1400px; }
+.slide.foto.split img { width:100%; height:auto; max-height:80vh; object-fit:contain; }
+
+/* Clippings */
+.clips { display:flex; flex-wrap:wrap; gap:3vh 2vw; justify-content:center; margin-top:3vh; }
+.clip { background:#fff; padding:8px 8px 10px; box-shadow:4px 6px 0 rgba(0,0,0,.35); max-width:min(44vw,540px); }
+.clip img { display:block; width:100%; height:auto; max-height:44vh; object-fit:contain; }
+.clip .src { font-family:var(--mono); font-size:11px; color:#555; margin-top:6px; letter-spacing:.06em; text-transform:uppercase; }
+.clip.big { max-width:min(62vw,820px); }
+.clip.r1 { rotate:-1.5deg; } .clip.r2 { rotate:1.2deg; }
+
+/* Proof / prediction beats */
+.proof-time .gigante { font-size:clamp(38px,5.2vw,86px); line-height:1.08; }
+.proof-human { font-size:clamp(27px,3.1vw,50px); line-height:1.2; color:var(--papel-suave); margin-top:4vh; letter-spacing:-.03em; }
+.proof-human strong { color:var(--papel); font-weight:500; }
+.proof-context { margin-top:4vh; padding-top:2vh; border-top:1px solid var(--linea); color:var(--papel-suave); font-size:clamp(13px,1.1vw,17px); line-height:1.55; max-width:1000px; }
+.prediction-punch { font-size:clamp(34px,3.8vw,62px); font-weight:600; line-height:1.06; letter-spacing:-.045em; margin-top:4vh; }
+.prediction-punch small { display:block; font-size:.55em; font-weight:500; color:var(--papel-suave); margin-top:1.2vh; letter-spacing:-.02em; }
+.quote { font-size:clamp(22px,2.6vw,40px); line-height:1.3; font-style:italic; margin-top:4vh; padding-left:1em; border-left:3px solid var(--acento); max-width:1000px; }
+.quote .who { display:block; font-style:normal; font-size:.5em; color:var(--papel-suave); margin-top:1.6vh; font-family:var(--mono); letter-spacing:.06em; text-transform:uppercase; }
+
+.dos { display:grid; grid-template-columns:1fr 1fr; gap:4vw; align-items:center; }
+.dos .clip { max-width:100%; }
+
+/* PICO */
+.capas { display:grid; grid-template-columns:repeat(4,1fr); gap:2vw; margin-top:5vh; }
+.capa { border-top:2px solid var(--acento); padding-top:2vh; }
+.capa h3 { font-family:var(--mono); color:var(--acento); font-size:clamp(14px,1.2vw,18px); letter-spacing:.12em; font-weight:600; margin-bottom:1.2vh; }
+.capa p { font-size:clamp(15px,1.4vw,21px); line-height:1.45; color:var(--papel); }
+
+/* Practice slides: one large numeral, one instruction, one prompt */
+.demo .inner { padding-left:22%; }
+.demo::before { content:attr(data-mark); position:absolute; left:6vw; top:50%; transform:translateY(-51%); color:var(--acento); font-weight:500; font-size:clamp(130px,17vw,290px); line-height:1; letter-spacing:-.09em; opacity:.95; }
+.demo .num { padding-bottom:2vh; border-bottom:1px solid #4a5058; }
+.demo .num .t { float:right; color:var(--papel-suave); letter-spacing:.1em; }
+.demo .statement { font-size:clamp(26px,3.1vw,50px); }
+.demo .sub { max-width:900px; margin-top:2.6vh; }
+.tools { display:flex; flex-wrap:wrap; gap:8px; margin-top:2.4vh; }
+.tools span { font-family:var(--mono); font-size:clamp(11px,.95vw,14px); letter-spacing:.04em; padding:.35em .75em; border:1px solid #47505a; border-radius:99px; color:#d9dee4; }
+.prompt { position:relative; margin-top:2.8vh; background:#0a0d10; border:1px solid #2c333b; border-left:3px solid var(--acento); border-radius:6px; padding:1.6vh 7.5em 1.6vh 1.2vw; font-family:var(--mono); font-size:clamp(13px,1.18vw,19px); line-height:1.5; color:#dfe6ee; white-space:pre-wrap; max-width:980px; }
+.prompt::before { content:'PROMPT'; position:absolute; top:-.75em; left:1em; background:#0a0d10; padding:0 .5em; font-size:10px; letter-spacing:.18em; color:var(--acento); }
+.copy { position:absolute; top:8px; right:8px; font:600 11px var(--mono); letter-spacing:.08em; color:#c2a3a8; background:#1f1517; border:1px solid #42303a; border-radius:4px; padding:4px 9px; cursor:pointer; }
+.copy:hover { color:var(--acento); border-color:var(--acento); }
+.copy.ok { color:var(--verde); border-color:var(--verde); }
+.watch { margin-top:2.6vh; font-size:clamp(16px,1.45vw,23px); line-height:1.45; color:#ffd27a; max-width:960px; }
+.watch b { font-family:var(--mono); font-size:.62em; letter-spacing:.16em; color:#ffd27a; margin-right:.8em; font-weight:600; }
+
+/* CRT accent, inherited from the Ferrovial keynote */
+.crt-accent { --crt-color:#ff5f6d; --crt-stripe:#b8323f; position:relative; display:inline-block; white-space:nowrap; padding-inline-end:.12em; margin-inline-end:-.12em; color:var(--crt-color); -webkit-text-fill-color:transparent; background:repeating-linear-gradient(0deg,var(--crt-color) 0px,var(--crt-color) 2px,var(--crt-stripe) 2px,var(--crt-stripe) 3px); -webkit-background-clip:text; background-clip:text; filter:drop-shadow(0 0 5px #ff5f6d25); }
+.crt-accent::before,.crt-accent::after { content:attr(data-text); position:absolute; inset:0; pointer-events:none; opacity:0; background:none; -webkit-text-fill-color:currentColor; }
+.crt-accent::before { color:#32f9f1; text-shadow:2px 0 #32f9f180; }
+.crt-accent::after { color:#ff3b9d; text-shadow:-2px 0 #ff3b9d80; }
+.crt-accent.crt-coral { --crt-color:#ff876b; --crt-stripe:#bd5946; }
+.chapter .crt-accent { --crt-color:#ffffff; --crt-stripe:#ffc9cf; }
+.slide.on .crt-accent { animation:crt-signal 8.6s steps(1,end) .8s infinite,crt-scan 6.7s linear infinite; }
+.slide.on .crt-accent::before { animation:crt-tear-cyan 5.9s steps(1,end) .9s infinite; }
+.slide.on .crt-accent::after { animation:crt-tear-magenta 7.7s steps(1,end) 1.05s infinite; }
+@keyframes crt-scan { to { background-position:0 12px; } }
+@keyframes crt-signal { 0%,5.5%,19%,100% { transform:none; } 1% { transform:translateX(.012em) skewX(-2deg); filter:brightness(1.25); } 2.4% { transform:translateX(-.01em) skewX(1deg); filter:brightness(.8); } 3.5% { transform:none; filter:brightness(1.15); } 17.5% { transform:skewX(-1deg); filter:brightness(1.2); } }
+@keyframes crt-tear-cyan { 0%,7%,100% { opacity:0; transform:none; clip-path:inset(0); } 1% { opacity:.85; transform:translateX(-.045em); clip-path:inset(15% 0 62% 0); } 3% { opacity:.7; transform:translateX(.035em); clip-path:inset(63% 0 17% 0); } 5% { opacity:.5; transform:translateX(-.02em); clip-path:inset(38% 0 49% 0); } }
+@keyframes crt-tear-magenta { 0%,6%,100% { opacity:0; transform:none; clip-path:inset(0); } 1% { opacity:.8; transform:translateX(.045em); clip-path:inset(58% 0 18% 0); } 2.8% { opacity:.65; transform:translateX(-.03em); clip-path:inset(23% 0 62% 0); } 4.5% { opacity:.4; transform:translateX(.02em); clip-path:inset(76% 0 10% 0); } }
+html.motion-off .crt-accent { background:none; -webkit-text-fill-color:currentColor; filter:none; animation:none !important; }
+html.motion-off .crt-accent::before,html.motion-off .crt-accent::after { display:none; }
+@media (prefers-reduced-motion:reduce) { .crt-accent { background:none; -webkit-text-fill-color:currentColor; filter:none; } }
+
+/* Closing */
+.tis .inner { display:grid; grid-template-columns:1fr auto; gap:5vw; align-items:center; }
+.tis .masthead { width:min(560px,48vw); filter:invert(1); mix-blend-mode:screen; margin-bottom:3vh; }
+.tis .qr { width:clamp(150px,15vw,230px); background:#fff; padding:10px; border-radius:6px; }
+
+.slide.film { padding:0; background:#000; cursor:pointer; }
+.slide.film video { width:100%; height:100%; object-fit:contain; background:#000; }
+.slide.film .hint { position:absolute; left:50%; bottom:8vh; transform:translateX(-50%); font-family:var(--mono); font-size:13px; letter-spacing:.14em; color:#fff; background:rgba(15,18,21,.8); padding:.6em 1em; border-radius:4px; transition:opacity .4s; }
+.slide.film.playing .hint { opacity:0; }
+body.film-on .pie,body.film-on #pag { display:none; }
+.dl { display:inline-block; margin-top:2.2vh; font-family:var(--mono); font-size:clamp(12px,1vw,15px); letter-spacing:.06em; color:var(--acento); border:1px solid var(--acento); border-radius:4px; padding:.5em .9em; text-decoration:none; }
+.dl:hover { background:var(--acento); color:#0f1215; }
+/* Chrome */
+#barra { position:fixed; left:0; bottom:0; height:3px; background:var(--acento); width:0; transition:width .3s ease; z-index:9; }
+#pag { position:fixed; right:2vw; bottom:2vh; font-family:var(--mono); font-size:12px; color:var(--papel-suave); opacity:.7; z-index:9; }
+.pie { position:fixed; left:2vw; bottom:2vh; font-family:var(--mono); font-size:12px; color:var(--papel-suave); opacity:.5; z-index:9; }
+body.dark-chrome #pag,body.dark-chrome .pie { color:#4b4f55; }
+.blackout { display:none; position:fixed; inset:0; z-index:99; background:#000; }
+body.is-blackout .blackout { display:block; }
+dialog.nav { margin:auto; width:min(1000px,90vw); max-height:84vh; padding:28px; border:1px solid #555; border-radius:8px; background:#17191c; color:#f7f6f2; font-family:var(--sans); }
+dialog.nav::backdrop { background:#000b; backdrop-filter:blur(8px); }
+dialog.nav h2 { font-size:20px; margin-bottom:18px; font-weight:600; }
+dialog.nav .links { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+dialog.nav button { padding:14px; text-align:left; border:1px solid #3d4246; background:#22262a; color:#ddd; font:15px var(--sans); cursor:pointer; border-radius:4px; }
+dialog.nav button:hover { border-color:var(--acento); color:var(--acento); }
+dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1.8; }
+
+@media (max-width:820px) {
+  .demo .inner { padding-left:0; } .demo::before { display:none; }
+  .capas { grid-template-columns:1fr 1fr; } .tis .inner,.dos,.slide.foto.split .inner { grid-template-columns:1fr; }
+}
+
+/* HUIL additions */
+.chapter.jornada { background:#7a0a1c; }
+.chapter.jornada .sub { color:#ffd6dc; }
+.chapter.jornada .crt-accent { --crt-color:#ffffff; --crt-stripe:#ffd9cf; }
+.dos-col .dos { align-items:start; margin-top:2vh; }
+</style>
+</head>
+<body>
+
+<!-- ============ PORTADA ============ -->
+<section class="slide cover" data-chapter="Portada"><div class="inner">
+  <div class="kicker">Hospital Universitario Infanta Leonor · Taller de IA · dos jornadas · noviembre 2026</div>
+  <div class="gigante">IA en el hospital:<br><strong>manos a la <span class="crt-accent" data-text="obra" aria-hidden="true">obra</span>.</strong></div>
+  <div class="presenter"><b>Javier Fuentes</b><span>Taller práctico · N Company</span></div>
+</div></section>
+
+<!-- ============ INTRO ============ -->
+<section class="slide foto contain" data-chapter="Intro" data-title="Grigori Perelman"><img src="img/perelman.png" alt="Grigori Perelman en una parada de autobús de San Petersburgo"></section>
+
+<section class="slide foto contain claro" data-title="Los siete Problemas del Milenio"><img src="img/millennium.png" alt="Los siete Problemas del Milenio del Instituto Clay"></section>
+
+<section class="slide foto contain claro" data-title="Horizonte temporal METR"><img src="img/horizon-nov-2026.jpg" alt="Duración de las tareas que distintos modelos de IA completan el 80 % de las veces"></section>
+
+<section class="slide steps" data-chapter="Dos jornadas"><div class="inner">
+  <div class="kicker">Dos jornadas · 16 horas</div>
+  <ul class="lista">
+    <li class="step"><span class="n">JORNADA 1</span>Investigar, entender y <strong>construir</strong>.<span class="meta">Del buscador al borrador · NotebookLM a fondo · programar con Claude sin saber programar</span></li>
+    <li class="step"><span class="n">JORNADA 2</span>La IA dentro de <strong>tus herramientas</strong>.<span class="meta">Copilot · IA en Excel · presentaciones · imágenes · una app en tu móvil · modelos en tu ordenador</span></li>
+  </ul>
+</div></section>
+
+<!-- ======================================================= -->
+<!-- ==================== JORNADA 1 ======================== -->
+<!-- ======================================================= -->
+<section class="slide chapter jornada" data-mark="1" data-chapter="JORNADA 1"><div class="inner">
+  <div class="kicker">Jornada 1</div>
+  <div class="gigante">Investigar, entender<br><strong>y construir.</strong></div>
+  <div class="sub">Por la mañana, de la pregunta al borrador. Por la tarde, NotebookLM a fondo y nuestras propias herramientas con Claude.</div>
+</div></section>
+
+<section class="slide steps"><div class="inner">
+  <div class="kicker">Jornada 1 · el plan</div>
+  <ul class="lista compact">
+    <li class="step"><span class="n">PARTE I</span>Investigación: hagamos un paper.<span class="meta">Buscadores, evidencia, red de citas, consolidación, redacción y verificación</span></li>
+    <li class="step"><span class="n">PARTE II</span>NotebookLM: tu biblioteca que habla.<span class="meta">Fuentes, chat con citas, resúmenes en audio y vídeo, mapas mentales, cuestionarios</span></li>
+    <li class="step"><span class="n">PARTE III</span>Programar con Claude.<span class="meta">Herramientas clínicas propias, datos que no salen del hospital, skills y un agente</span></li>
+  </ul>
+</div></section>
+
+<!-- ============ PARTE I · INVESTIGACIÓN ============ -->
+<section class="slide chapter" data-mark="I" data-chapter="J1 · Parte I · Investigación"><div class="inner">
+  <div class="kicker">Jornada 1 · Parte I · Investigación</div>
+  <div class="gigante">Hagamos<br><strong>un paper.</strong></div>
+  <div class="sub">Una pregunta, muchas herramientas. Ninguna lo hace todo bien: se recoge de varias y se consolida.</div>
+</div></section>
+
+<section class="slide steps"><div class="inner">
+  <div class="kicker">Investigación distribuida · el mapa</div>
+  <ul class="lista compact">
+    <li class="step"><span class="n">01</span>Búsqueda general<span class="meta">Google modo IA · Perplexity · Copilot</span></li>
+    <li class="step"><span class="n">02</span>Evidencia<span class="meta">OpenEvidence · Consensus · Elicit · Claude con PubMed</span></li>
+    <li class="step"><span class="n">03</span>Exploración y biblioteca<span class="meta">Litmaps · Zotero · NotebookLM</span></li>
+    <li class="step"><span class="n">04</span>Consolidación y redacción<span class="meta">Deep Research · ChatGPT, Claude o Copilot dentro de Word</span></li>
+    <li class="step"><span class="n">05</span>Verificación<span class="meta">Cada cita existe y dice lo que afirmas</span></li>
+  </ul>
+</div></section>
+
+<section class="slide"><div class="inner">
+  <div class="kicker">La pregunta de investigación</div>
+  <div class="statement">En mayores de 75 años polimedicados que ingresan, ¿<strong>revisar y retirar fármacos</strong> con criterios STOPP/START reduce reingresos y caídas?</div>
+  <div class="capas">
+    <div class="capa"><h3>P · POBLACIÓN</h3><p>≥ 75 años, ≥ 5 fármacos, ingreso hospitalario.</p></div>
+    <div class="capa"><h3>I · INTERVENCIÓN</h3><p>Deprescripción guiada por STOPP/START.</p></div>
+    <div class="capa"><h3>C · COMPARADOR</h3><p>Atención habitual.</p></div>
+    <div class="capa"><h3>O · RESULTADO</h3><p>Reingresos, caídas, reacciones adversas, mortalidad.</p></div>
+  </div>
+  <div class="src-line">Cambiadla por una pregunta de vuestro servicio. El método es el mismo.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="1"><div class="inner">
+  <div class="num">Parte I · Búsqueda general<span class="t">PASO 01</span></div>
+  <div class="statement">Lanza la misma pregunta, <strong>con las mismas palabras</strong>, a dos buscadores.</div>
+  <div class="tools"><span>Google · modo IA</span><span>Perplexity</span><span>Copilot · búsqueda web</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>En pacientes mayores de 75 años polimedicados que ingresan en el hospital, ¿la deprescripción guiada por criterios STOPP/START reduce los reingresos, las caídas y las reacciones adversas frente a la atención habitual? Resume los ensayos clínicos principales con su tamaño muestral y su resultado. Cita las fuentes.</div>
+  <div class="watch step"><b>FÍJATE</b>¿Citan los mismos ensayos? ¿Coinciden en si funciona? Apunta las diferencias. Sirven para el mapa, no para citar.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="2"><div class="inner">
+  <div class="num">Parte I · Evidencia<span class="t">PASO 02</span></div>
+  <div class="statement">La misma pregunta, a herramientas que <strong>solo responden con artículos</strong>.</div>
+  <div class="tools"><span>OpenEvidence</span><span>Consensus</span><span>Elicit</span><span>Claude + conector PubMed</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>[Pega la pregunta anterior] Gradúa la fuerza de la evidencia de cada afirmación, distingue ensayo aleatorizado, análisis secundario y estudio observacional, y enlaza cada cifra a su artículo.</div>
+  <div class="watch step"><b>FÍJATE</b>Las herramientas de evidencia matizan. ¿Cuál es más prudente? Deja Elicit trabajando en modo profundo: lo recogemos luego.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="3"><div class="inner">
+  <div class="num">Parte I · Exploración<span class="t">PASO 03</span></div>
+  <div class="statement">Parte de un artículo semilla y <strong>sigue la red de citas</strong>.</div>
+  <div class="tools"><span>Litmaps</span><span>ResearchRabbit</span><span>Zotero</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Blum MR, et al. Optimizing therapy to prevent avoidable hospital admissions in multimorbid older adults (OPERAM): cluster randomised controlled trial. BMJ. 2021;374:n1585. DOI: 10.1136/bmj.n1585</div>
+  <div class="watch step"><b>FÍJATE</b>A la derecha, lo más reciente; arriba, lo más citado. ¿Aparece SENATOR? Lo que te convenza, a Zotero.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="4"><div class="inner">
+  <div class="num">Parte I · Biblioteca<span class="t">PASO 03</span></div>
+  <div class="statement">Sube tus documentos. Pide una tabla <strong>que puedas auditar</strong>.</div>
+  <div class="tools"><span>NotebookLM</span><span>Copilot · Notebooks</span><span>Claude · Proyecto</span><span>ChatGPT · Proyecto</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Usa solo los documentos cargados. Construye una tabla con: estudio, diseño, n, población, intervención, comparador, resultado principal, efecto con IC 95 % y la página exacta de cada dato. Si un dato no aparece, escribe «no consta». Después, dime en qué se contradicen los documentos.</div>
+  <div class="watch step"><b>FÍJATE</b>Elige dos cifras al azar y búscalas tú en el PDF. Si no están donde dice, no está bien.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="5"><div class="inner">
+  <div class="num">Parte I · Consolidación<span class="t">PASO 04</span></div>
+  <div class="statement">Junta todo lo recopilado.<br><strong>Que lo consolide por ti.</strong></div>
+  <div class="tools"><span>ChatGPT · investigación avanzada</span><span>Gemini · Deep Research</span><span>Claude · Research</span><span>Copilot · Researcher</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Te adjunto todo lo que he recopilado sobre esta pregunta: [pregunta]. Las respuestas de los buscadores, los informes de Consensus y Elicit, y mis documentos. Consolídalo en un informe integrado. Contrasta las cifras que no coinciden entre fuentes, di cuál es la fuente primaria de cada una y señala qué afirmaciones no tienen respaldo en un artículo.</div>
+  <div class="watch step"><b>FÍJATE</b>Deep Research sale a buscar más: tarda más y hay que revisar más. Por la tarde veremos la alternativa cerrada: NotebookLM.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="6"><div class="inner">
+  <div class="num">Parte I · Redacción<span class="t">PASO 04</span></div>
+  <div class="statement">Redacta donde escribes:<br><strong>la IA dentro de Word.</strong></div>
+  <div class="tools"><span>Copilot en Word</span><span>Claude en Word</span><span>ChatGPT en Word</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Con los documentos adjuntos, redacta el borrador de una revisión narrativa para Revista Clínica Española, siguiendo sus normas para autores: resumen estructurado, puntos clave, tabla de evidencia, referencias con DOI y declaración de uso de IA. Deja entre corchetes lo que solo pueden rellenar los autores.</div>
+  <div class="watch step"><b>FÍJATE</b>Escribe sobre el documento para que lo coedites. Es un borrador, no un artículo.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="7"><div class="inner">
+  <div class="num">Parte I · Verificación<span class="t">PASO 05</span></div>
+  <div class="statement">Cada cita existe<br><strong>y dice lo que afirmas.</strong></div>
+  <div class="tools"><span>Claude + conector PubMed</span><span>Scite</span><span>Zotero</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Revisa este borrador referencia por referencia. Para cada una: comprueba que el DOI existe, que la cifra citada aparece en el artículo y en qué página, y dame una tabla con: afirmación, referencia, ¿lo dice?, página. Marca en rojo lo que no puedas comprobar.</div>
+  <div class="watch step"><b>FÍJATE</b>El cuello de botella ya no es producir. Es comprobar. Este paso es tuyo.</div>
+</div></section>
+
+<section class="slide impact claro"><div class="inner">
+  <div class="statement">El modelo no firma el artículo.<br><strong>Tú sí.</strong></div>
+  <div class="sub">Brillante y poco fiable, en el mismo minuto. Por eso se contrasta entre herramientas y se verifica cada cita.</div>
+</div></section>
+
+<!-- ============ PARTE II · NOTEBOOKLM ============ -->
+<section class="slide chapter" data-mark="II" data-chapter="J1 · Parte II · NotebookLM"><div class="inner">
+  <div class="kicker">Jornada 1 · Parte II · NotebookLM</div>
+  <div class="gigante">Tu biblioteca<br><strong>que habla.</strong></div>
+  <div class="sub">Un cuaderno de Google que solo sabe lo que tú le das. Y te dice de dónde ha sacado cada frase.</div>
+</div></section>
+
+<section class="slide steps"><div class="inner">
+  <div class="kicker">Qué es NotebookLM</div>
+  <ul class="lista compact">
+    <li class="step"><span class="n">FUENTES</span>PDF, webs, vídeos de YouTube, Google Docs, audios, texto pegado.<span class="meta">Hasta 50 fuentes por cuaderno en la versión gratuita · más con la de pago</span></li>
+    <li class="step"><span class="n">CHAT</span>Responde <strong>solo</strong> con tus fuentes y cita cada frase.<span class="meta">Pinchas en la cita y te lleva al párrafo exacto</span></li>
+    <li class="step"><span class="n">ESTUDIO</span>Resumen en audio, resumen en vídeo, mapa mental, informes.<span class="meta">Un pódcast de dos voces sobre tus PDF, en castellano</span></li>
+    <li class="step"><span class="n">DOCENCIA</span>Tarjetas de memoria y cuestionarios.<span class="meta">Para residentes, sesiones y formación continuada</span></li>
+    <li class="step"><span class="n">DESCUBRIR</span>Busca fuentes nuevas en la web y te las propone.<span class="meta">Tú decides cuáles entran en el cuaderno</span></li>
+  </ul>
+</div></section>
+
+<section class="slide dos-col"><div class="inner">
+  <div class="kicker">NotebookLM frente a un chat</div>
+  <div class="dos">
+    <div>
+      <div class="statement" style="font-size:clamp(22px,2.4vw,38px)">ChatGPT, Claude, Gemini</div>
+      <div class="sub">Saben de todo. Mezclan lo que leen con lo que recuerdan. A veces inventan una cita.</div>
+    </div>
+    <div>
+      <div class="statement" style="font-size:clamp(22px,2.4vw,38px)"><strong>NotebookLM</strong></div>
+      <div class="sub">Solo sabe lo que le das. Si no está en las fuentes, <strong>te lo dice</strong>. Cada frase lleva su cita.</div>
+    </div>
+  </div>
+  <div class="redflag">Cuenta corporativa o personal: mirad qué permite el hospital antes de subir nada que no sea público.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="1"><div class="inner">
+  <div class="num">Parte II · Montar el cuaderno<span class="t">NOTEBOOKLM</span></div>
+  <div class="statement">Mete los artículos de esta mañana<br><strong>y pregunta solo a ellos.</strong></div>
+  <div class="tools"><span>notebooklm.google.com</span><span>PDF de Zotero</span><span>Descubrir fuentes</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Usa solo las fuentes cargadas. ¿Qué intervenciones de deprescripción han reducido reingresos y cuáles no? Para cada estudio, dame el resultado principal y cita el fragmento exacto. Si las fuentes no permiten responder algo, dilo.</div>
+  <div class="watch step"><b>FÍJATE</b>Pincha en tres citas. ¿Te llevan al párrafo que dice lo que afirma?</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="2"><div class="inner">
+  <div class="num">Parte II · Resumen en audio y vídeo<span class="t">NOTEBOOKLM</span></div>
+  <div class="statement">Tus artículos, en un pódcast<br><strong>para el coche.</strong></div>
+  <div class="tools"><span>Resumen en audio</span><span>Resumen en vídeo</span><span>Personalizar</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Los oyentes son médicos internistas y geriatras. Céntrate en lo que cambia la práctica: qué fármacos retirar primero, en qué pacientes y con qué evidencia. Discute los ensayos negativos y por qué pudieron fallar. Duración corta. En castellano.</div>
+  <div class="watch step"><b>FÍJATE</b>Escucha dos minutos. ¿Exagera algo? ¿Suena a congreso o a tertulia? Con el mismo cuaderno, prueba el resumen en vídeo.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="3"><div class="inner">
+  <div class="num">Parte II · Docencia<span class="t">NOTEBOOKLM</span></div>
+  <div class="statement">Mapa mental, tarjetas<br><strong>y un examen para residentes.</strong></div>
+  <div class="tools"><span>Mapa mental</span><span>Tarjetas</span><span>Cuestionario</span><span>Guía de estudio</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Crea un cuestionario de 10 preguntas tipo test para residentes de primer año sobre deprescripción en el anciano. Cuatro opciones por pregunta, una correcta, y la explicación de cada respuesta con su cita. Que tres preguntas sean casos clínicos breves.</div>
+  <div class="watch step"><b>FÍJATE</b>¿Hay alguna pregunta con dos respuestas defendibles? Ese es el error típico. Revisa antes de repartirlo.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="4"><div class="inner">
+  <div class="num">Parte II · Protocolos del servicio<span class="t">NOTEBOOKLM</span></div>
+  <div class="statement">Los protocolos del hospital,<br><strong>en una pregunta.</strong></div>
+  <div class="tools"><span>NotebookLM · compartir</span><span>Copilot · Notebooks</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Usa solo los protocolos cargados. Soy residente de guardia: paciente de 82 años con fibrilación auricular, filtrado de 28 y caída reciente. ¿Qué dice nuestro protocolo sobre la anticoagulación? Cita protocolo, versión y página. Si dos protocolos se contradicen, avísame.</div>
+  <div class="watch step"><b>FÍJATE</b>Un cuaderno compartido con el servicio es un manual que responde. Si el protocolo cambia, cambia la fuente.</div>
+</div></section>
+
+<!-- ============ PARTE III · PROGRAMAR CON CLAUDE ============ -->
+<section class="slide chapter" data-mark="III" data-chapter="J1 · Parte III · Programar con Claude"><div class="inner">
+  <div class="kicker">Jornada 1 · Parte III · Programar con Claude</div>
+  <div class="gigante">Programar<br><strong>sin saber programar.</strong></div>
+  <div class="sub">Describes lo que quieres en castellano. Claude escribe el código y te enseña la herramienta funcionando.</div>
+</div></section>
+
+<section class="slide steps"><div class="inner">
+  <div class="kicker">Tres niveles</div>
+  <ul class="lista">
+    <li class="step"><span class="n">ARTEFACTOS</span>Una herramienta en el chat.<span class="meta">Calculadoras, formularios, paneles, juegos para docencia · se comparten con un enlace</span></li>
+    <li class="step"><span class="n">SKILLS</span>Instrucciones que no quieres repetir.<span class="meta">Tu forma de leer un ensayo, de escribir un informe, de revisar un tratamiento</span></li>
+    <li class="step"><span class="n">AGENTES</span>Una carpeta y una instrucción.<span class="meta">Claude Cowork y Claude Code trabajan con tus archivos, paso a paso</span></li>
+  </ul>
+</div></section>
+
+<section class="slide demo steps" data-mark="1"><div class="inner">
+  <div class="num">Parte III · Herramienta clínica<span class="t">ARTEFACTO</span></div>
+  <div class="statement">Una calculadora que tu servicio<br><strong>lleva años queriendo.</strong></div>
+  <div class="tools"><span>Claude · artefactos</span><span>ChatGPT · Canvas</span><span>Gemini · Canvas</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Prográmame una herramienta web de revisión de medicación para mayores de 75 años. Yo pego la lista de fármacos del paciente y marco sus diagnósticos. La herramienta me señala los criterios STOPP/START que se cumplen, la carga anticolinérgica total y los fármacos que aumentan el riesgo de caídas. Diseño limpio, en castellano, pensada para usar en planta desde una tableta. Cita la versión de los criterios que usas.</div>
+  <div class="watch step"><b>FÍJATE</b>Pídele cambios hablando: «añade el filtrado glomerular», «hazlo imprimible». Y prueba tú tres pacientes cuya respuesta conozcas.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="2"><div class="inner">
+  <div class="num">Parte III · Datos de pacientes<span class="t">DATOS</span></div>
+  <div class="statement">El dato no sale del hospital.<br><strong>Sale solo la estructura.</strong></div>
+  <div class="tools"><span>Claude · artefactos</span><span>ChatGPT · Canvas</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Te paso solo las cabeceras de mi Excel: NHC, nombre, fecha_nacimiento, fecha_ingreso, fecha_alta, servicio, n_farmacos, caidas_ultimo_ano, reingreso_30d, comentario_alta. Prográmame un único fichero HTML que funcione sin conexión, lea el Excel en el navegador, sustituya los identificadores por códigos, convierta las fechas en edad y días de estancia, borre nombres propios del texto libre y genere aparte una clave de reversión.</div>
+  <div class="watch step"><b>FÍJATE</b>Claude solo ha visto las cabeceras. El Excel real lo abres tú, en tu ordenador, sin conexión.</div>
+  <a class="dl step" href="data/pacientes-ficticios-huil.xlsx" download="pacientes-ficticios-huil.xlsx">↓ Descargar Excel de ejemplo · 200 pacientes ficticios</a>
+</div></section>
+
+<section class="slide demo steps" data-mark="3"><div class="inner">
+  <div class="num">Parte III · Panel de datos<span class="t">DATOS</span></div>
+  <div class="statement">Pide el código, <strong>no el resultado</strong>.</div>
+  <div class="tools"><span>Claude</span><span>ChatGPT</span><span>R / Python</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Con el Excel anonimizado del paso anterior, prográmame un panel interactivo: reingresos a 30 días según número de fármacos, caídas por servicio y estancia media. Añade filtros por servicio y edad. Después dame el código en R que reproduce las mismas cifras, comentado para que lo entienda un clínico.</div>
+  <div class="watch step"><b>FÍJATE</b>Mismo código, mismo dato, mismo resultado. Eso se puede declarar en el artículo.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="4"><div class="inner">
+  <div class="num">Parte III · Docencia<span class="t">ARTEFACTO</span></div>
+  <div class="statement">Un simulador de casos<br><strong>para los residentes.</strong></div>
+  <div class="tools"><span>Claude · artefactos con IA</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Crea un simulador de casos clínicos para residentes. La app hace de paciente de 84 años polimedicado que llega a urgencias tras una caída. El residente pregunta, pide pruebas y revisa la medicación; el paciente responde solo con lo que le preguntan. Al final, la app evalúa qué ha hecho bien, qué ha pasado por alto y qué fármaco debería haber retirado.</div>
+  <div class="watch step"><b>FÍJATE</b>Es un artefacto que usa IA dentro. Se comparte con un enlace y cada residente juega su partida.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="5"><div class="inner">
+  <div class="num">Parte III · Skills<span class="t">MÉTODO</span></div>
+  <div class="statement">Lo que explicas una vez,<br><strong>no lo repitas.</strong></div>
+  <div class="tools"><span>Claude · Skills</span><span>ChatGPT · GPTs</span><span>Gemini · Gems</span><span>Copilot · agentes</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Quiero crear una skill. Te voy a explicar cómo reviso yo el tratamiento de un paciente mayor al alta: qué miro primero, qué me hace desconfiar y cómo lo escribo en el informe. Hazme las preguntas que necesites, una a una. Al final, redáctalo como instrucciones reutilizables y guárdalo como skill.</div>
+  <div class="watch step"><b>FÍJATE</b>Una skill es un prompt largo que no quieres repetir. El agente que viene ahora la puede usar.</div>
+</div></section>
+
+<section class="slide impact steps"><div class="inner">
+  <div class="statement">Todo esto, paso a paso, nos ha llevado el día entero.</div>
+  <div class="statement step" style="margin-top:4vh"><strong>Ahora, en una sola instrucción.</strong></div>
+</div></section>
+
+<section class="slide demo steps" data-mark="A" data-chapter="J1 · El agente"><div class="inner">
+  <div class="num">Jornada 1 · Final · agente<span class="t">DEMO</span></div>
+  <div class="statement">Una carpeta y una instrucción.<br><strong>El agente hace el resto.</strong></div>
+  <div class="tools"><span>Claude Cowork</span><span>ChatGPT · agente</span><span>Copilot · Researcher</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>En la carpeta «Taller HUIL» están mis artículos y mi skill de revisión de tratamiento. Responde a esta pregunta de investigación: [pregunta]. 1) Busca evidencia en PubMed y ClinicalTrials.gov. 2) Lee los PDF de la carpeta. 3) Construye la tabla de evidencia con página. 4) Redacta en Word el borrador de revisión narrativa. 5) Verifica cada referencia y dame la lista de lo que no has podido comprobar. Pregúntame antes de enviar o publicar nada.</div>
+  <div class="watch step"><b>FÍJATE</b>Déjalo trabajar mientras recogemos. ¿Qué ha construido? ¿Qué comprobarías antes de firmarlo?</div>
+</div></section>
+
+<section class="slide impact"><div class="inner">
+  <div class="kicker" style="justify-content:center">Para mañana</div>
+  <div class="statement">Trae una tarea que te robe tiempo cada semana.<br><strong>Mañana la hacemos con IA.</strong></div>
+</div></section>
+
+<!-- ======================================================= -->
+<!-- ==================== JORNADA 2 ======================== -->
+<!-- ======================================================= -->
+<section class="slide chapter jornada" data-mark="2" data-chapter="JORNADA 2"><div class="inner">
+  <div class="kicker">Jornada 2</div>
+  <div class="gigante">La IA dentro de<br><strong>tus herramientas.</strong></div>
+  <div class="sub">Lo que ya tenéis en el hospital, y lo que podéis montar vosotros: imágenes, apps y modelos que no salen de tu ordenador.</div>
+</div></section>
+
+<section class="slide steps"><div class="inner">
+  <div class="kicker">Jornada 2 · el plan</div>
+  <ul class="lista compact">
+    <li class="step"><span class="n">PARTE IV</span>Copilot: la herramienta que ya tenéis.</li>
+    <li class="step"><span class="n">PARTE V</span>IA dentro de Excel: una fórmula que piensa.</li>
+    <li class="step"><span class="n">PARTE VI</span>Presentaciones e infografías.<span class="meta">Gamma · Napkin · Copilot en PowerPoint · Claude</span></li>
+    <li class="step"><span class="n">PARTE VII</span>Imágenes: generar y editar.</li>
+    <li class="step"><span class="n">PARTE VIII</span>Una app en tu móvil.<span class="meta">Replit + Expo Go</span></li>
+    <li class="step"><span class="n">PARTE IX</span>Modelos en local.<span class="meta">LM Studio · nada sale de tu ordenador</span></li>
+  </ul>
+</div></section>
+
+<!-- ============ PARTE IV · COPILOT ============ -->
+<section class="slide chapter" data-mark="IV" data-chapter="J2 · Parte IV · Copilot"><div class="inner">
+  <div class="kicker">Jornada 2 · Parte IV · Microsoft Copilot</div>
+  <div class="gigante">La IA que<br><strong>ya tenéis.</strong></div>
+  <div class="sub">Dentro de vuestra cuenta del hospital, con protección de datos de empresa. Lo que vimos ayer, sin salir de Microsoft.</div>
+</div></section>
+
+<section class="slide steps"><div class="inner">
+  <div class="kicker">Copilot · el mapa</div>
+  <ul class="lista compact">
+    <li class="step"><span class="n">CHAT</span>Copilot Chat con la cuenta del trabajo.<span class="meta">El escudo verde: lo que escribes no entrena el modelo y no sale de la organización</span></li>
+    <li class="step"><span class="n">APPS</span>Dentro de Word, Excel, PowerPoint, Outlook y Teams.<span class="meta">Resume, redacta, analiza, crea diapositivas, resume reuniones</span></li>
+    <li class="step"><span class="n">NOTEBOOKS</span>Un cuaderno con tus archivos, como NotebookLM.</li>
+    <li class="step"><span class="n">AGENTES</span>Researcher, Analyst y los que crees tú.<span class="meta">Agentes con los protocolos del servicio, sin programar</span></li>
+    <li class="step"><span class="n">LICENCIA</span>Qué tenéis vosotros: <strong>Chat gratuito o Microsoft 365 Copilot</strong>.<span class="meta">Lo comprobamos en vuestra cuenta antes de empezar</span></li>
+  </ul>
+</div></section>
+
+<section class="slide demo steps" data-mark="1"><div class="inner">
+  <div class="num">Parte IV · Correo y reuniones<span class="t">COPILOT</span></div>
+  <div class="statement">El correo de la semana<br><strong>en un minuto.</strong></div>
+  <div class="tools"><span>Copilot en Outlook</span><span>Copilot en Teams</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Resume los correos de esta semana sobre [comisión / proyecto]. Dime qué decisiones están pendientes, quién me ha pedido algo y para cuándo, y redacta una respuesta breve al hilo más urgente. No la envíes.</div>
+  <div class="watch step"><b>FÍJATE</b>En Teams: graba y transcribe una reunión y pide «decisiones, responsables y fechas». Es el acta que nadie quiere escribir.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="2"><div class="inner">
+  <div class="num">Parte IV · Documentos<span class="t">COPILOT</span></div>
+  <div class="statement">Del protocolo de 40 páginas<br><strong>a la hoja de bolsillo.</strong></div>
+  <div class="tools"><span>Copilot en Word</span><span>Copilot Chat · archivos</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Convierte este protocolo en una hoja de una cara para residentes de guardia: criterios de inclusión, pasos en orden, dosis y cuándo llamar al adjunto. Al final, lista las partes del protocolo que has dejado fuera, para que yo decida si sobran.</div>
+  <div class="watch step"><b>FÍJATE</b>Pídele lo que ha dejado fuera. Resumir es decidir qué no importa: esa decisión es tuya.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="3"><div class="inner">
+  <div class="num">Parte IV · Un agente propio<span class="t">COPILOT</span></div>
+  <div class="statement">Un agente del servicio<br><strong>sin escribir código.</strong></div>
+  <div class="tools"><span>Copilot · crear agente</span><span>SharePoint del servicio</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Crea un agente llamado «Protocolos de Medicina Interna». Responde solo con los documentos de esta carpeta de SharePoint, cita siempre documento y página, y si la respuesta no está en los protocolos, dilo y sugiere a quién preguntar. Tono breve, para residentes de guardia. Propón cuatro preguntas de ejemplo.</div>
+  <div class="watch step"><b>FÍJATE</b>Es el NotebookLM de ayer, pero dentro del hospital y compartido con el servicio.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="4"><div class="inner">
+  <div class="num">Parte IV · Researcher y Analyst<span class="t">COPILOT</span></div>
+  <div class="statement">El Deep Research de ayer,<br><strong>en Copilot.</strong></div>
+  <div class="tools"><span>Copilot · Researcher</span><span>Copilot · Analyst</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Researcher: prepara un informe sobre deprescripción en mayores de 75 años hospitalizados. Combina la evidencia publicada con lo que tengamos en correos y documentos del servicio sobre el tema. Separa claramente lo que viene de fuera de lo que viene de dentro.</div>
+  <div class="watch step"><b>FÍJATE</b>Compáralo con el informe de ayer de ChatGPT o Gemini. ¿Cita lo mismo? ¿Cuál es más prudente?</div>
+</div></section>
+
+<!-- ============ PARTE V · EXCEL ============ -->
+<section class="slide chapter" data-mark="V" data-chapter="J2 · Parte V · IA en Excel"><div class="inner">
+  <div class="kicker">Jornada 2 · Parte V · IA en Excel</div>
+  <div class="gigante">Una fórmula<br><strong>que piensa.</strong></div>
+  <div class="sub">Igual que =SUMA(), pero con un prompt dentro. Se arrastra hacia abajo y lee mil filas de texto libre.</div>
+</div></section>
+
+<section class="slide steps"><div class="inner">
+  <div class="kicker">Tres sabores</div>
+  <ul class="lista compact">
+    <li class="step"><span class="n">=COPILOT()</span>Excel con Microsoft 365 Copilot.<span class="meta">=COPILOT("Clasifica este comentario", J2)</span></li>
+    <li class="step"><span class="n">=AI()</span>Google Sheets con Gemini.<span class="meta">=AI("Extrae los fármacos retirados", J2)</span></li>
+    <li class="step"><span class="n">=GPT()</span>Complemento «GPT for Excel / Sheets».<span class="meta">Elige modelo: GPT, Claude, Gemini · paga por uso</span></li>
+  </ul>
+  <div class="redflag step">Cada celda es una llamada a la IA. Solo datos anonimizados, y revisa una muestra a mano.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="1"><div class="inner">
+  <div class="num">Parte V · Clasificar texto libre<span class="t">EXCEL</span></div>
+  <div class="statement">Doscientos comentarios de alta,<br><strong>clasificados en un minuto.</strong></div>
+  <div class="tools"><span>=COPILOT()</span><span>=AI()</span><span>=GPT()</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>=COPILOT("Lee este comentario de alta y responde solo con una de estas etiquetas: DEPRESCRIPCIÓN, AJUSTE DE DOSIS, SIN CAMBIOS, RIESGO DE CAÍDA, SOCIAL", J2)</div>
+  <div class="watch step"><b>FÍJATE</b>Añade otra columna: «¿qué fármaco se ha retirado? Si ninguno, escribe NINGUNO». Ahora tienes una variable para el estudio.</div>
+  <a class="dl step" href="data/pacientes-ficticios-huil.xlsx" download="pacientes-ficticios-huil.xlsx">↓ Descargar Excel de ejemplo · 200 pacientes ficticios</a>
+</div></section>
+
+<section class="slide demo steps" data-mark="2"><div class="inner">
+  <div class="num">Parte V · Excel en lenguaje natural<span class="t">EXCEL</span></div>
+  <div class="statement">Tu hoja de cálculo,<br><strong>sin pelearte con las fórmulas.</strong></div>
+  <div class="tools"><span>Copilot en Excel · Agent Mode</span><span>Claude en Excel</span><span>ChatGPT en Excel</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>En esta hoja de pacientes: añade una columna con la edad al ingreso y otra con los días de estancia, crea una tabla dinámica de reingresos a 30 días por servicio y número de fármacos, y un gráfico listo para la sesión. Explícame cada fórmula y dime qué filas tienen valores imposibles.</div>
+  <div class="watch step"><b>FÍJATE</b>Hay seis valores imposibles escondidos. ¿Los encuentra todos? Si no entiendes una fórmula, no la uses.</div>
+</div></section>
+
+<!-- ============ PARTE VI · PRESENTACIONES ============ -->
+<section class="slide chapter" data-mark="VI" data-chapter="J2 · Parte VI · Presentaciones"><div class="inner">
+  <div class="kicker">Jornada 2 · Parte VI · Presentaciones</div>
+  <div class="gigante">De un documento<br><strong>a la sesión clínica.</strong></div>
+  <div class="sub">Cuatro herramientas, cuatro estilos. Elige según para quién sea.</div>
+</div></section>
+
+<section class="slide steps"><div class="inner">
+  <div class="kicker">Qué uso para qué</div>
+  <ul class="lista compact">
+    <li class="step"><span class="n">GAMMA</span>Presentación completa desde un texto o un PDF.<span class="meta">Diseño cuidado en un minuto · exporta a PowerPoint y PDF · también webs</span></li>
+    <li class="step"><span class="n">NAPKIN</span>Pegas un párrafo, te propone el diagrama.<span class="meta">Flujos, comparativas, ciclos · editable · perfecto para pósteres e informes</span></li>
+    <li class="step"><span class="n">COPILOT</span>PowerPoint con la plantilla del hospital.<span class="meta">Desde un Word o un correo · respeta el formato corporativo</span></li>
+    <li class="step"><span class="n">CLAUDE</span>Presentaciones en PowerPoint o en web, como esta.<span class="meta">Más control: le dices qué estructura quieres y lo programa</span></li>
+  </ul>
+</div></section>
+
+<section class="slide demo steps" data-mark="1"><div class="inner">
+  <div class="num">Parte VI · Gamma<span class="t">PRESENTACIÓN</span></div>
+  <div class="statement">Del borrador de ayer<br><strong>a la sesión del servicio.</strong></div>
+  <div class="tools"><span>gamma.app</span><span>Importar documento</span><span>Exportar a PowerPoint</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Convierte este borrador en una presentación de 8 diapositivas para la sesión clínica del servicio: una idea por diapositiva, una figura o tabla en cada una, mensajes que no exageren el dato y notas del orador. Estilo sobrio, fondo claro.</div>
+  <div class="watch step"><b>FÍJATE</b>¿Promete más de lo que dice el dato? Las herramientas de diseño tienden al titular. Cambia el tema con un clic y compara.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="2"><div class="inner">
+  <div class="num">Parte VI · Napkin<span class="t">INFOGRAFÍA</span></div>
+  <div class="statement">Un párrafo de protocolo,<br><strong>un diagrama.</strong></div>
+  <div class="tools"><span>napkin.ai</span><span>Copilot en PowerPoint</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Revisión de medicación al ingreso en mayores de 75 años: primero se concilia la medicación domiciliaria; después se aplican los criterios STOPP para detectar fármacos potencialmente inapropiados y los START para detectar omisiones; se prioriza retirar benzodiacepinas, anticolinérgicos y duplicidades; se acuerda con el paciente y la familia; y se comunica a atención primaria en el informe de alta.</div>
+  <div class="watch step"><b>FÍJATE</b>Pega el texto en Napkin y pulsa el rayo. Te da cinco formas de dibujarlo. Exporta a PNG o directamente a la diapositiva.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="3"><div class="inner">
+  <div class="num">Parte VI · Para pacientes<span class="t">PRESENTACIÓN</span></div>
+  <div class="statement">El mismo contenido,<br><strong>para quien lo va a leer.</strong></div>
+  <div class="tools"><span>Claude</span><span>Copilot en Word</span><span>Napkin</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Convierte esta presentación en una hoja para pacientes mayores y sus familias: por qué revisamos sus medicamentos, qué puede cambiar y qué no deben hacer nunca por su cuenta. Lenguaje de 12 años, letra grande, 200 palabras como máximo. Después, la misma hoja en rumano y en árabe.</div>
+  <div class="watch step"><b>FÍJATE</b>¿Se entiende sin ser médico? Dáselo a alguien de fuera antes de imprimirlo.</div>
+</div></section>
+
+<!-- ============ PARTE VII · IMÁGENES ============ -->
+<section class="slide chapter" data-mark="VII" data-chapter="J2 · Parte VII · Imágenes"><div class="inner">
+  <div class="kicker">Jornada 2 · Parte VII · Imágenes</div>
+  <div class="gigante">Generar<br><strong>y editar imágenes.</strong></div>
+  <div class="sub">Ya no son dibujos raros con seis dedos. Escriben texto, mantienen personajes y editan con una frase.</div>
+</div></section>
+
+<section class="slide steps"><div class="inner">
+  <div class="kicker">El mapa</div>
+  <ul class="lista compact">
+    <li class="step"><span class="n">CHATGPT</span>Imágenes de ChatGPT.<span class="meta">Muy bueno con texto dentro de la imagen e infografías</span></li>
+    <li class="step"><span class="n">GEMINI</span>Nano Banana.<span class="meta">El mejor editando: cambia una parte y deja el resto igual · mantiene caras y personajes</span></li>
+    <li class="step"><span class="n">COPILOT</span>Copilot · crear imagen.<span class="meta">Dentro de la cuenta del hospital · integrado en PowerPoint</span></li>
+    <li class="step"><span class="n">OTROS</span>Midjourney, Ideogram, Adobe Firefly.<span class="meta">Estética · tipografía · uso comercial</span></li>
+  </ul>
+</div></section>
+
+<section class="slide demo steps" data-mark="1"><div class="inner">
+  <div class="num">Parte VII · Generar<span class="t">IMAGEN</span></div>
+  <div class="statement">Una infografía para la sala de espera,<br><strong>con el texto bien escrito.</strong></div>
+  <div class="tools"><span>ChatGPT · imágenes</span><span>Gemini · Nano Banana</span><span>Copilot</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Infografía vertical para la sala de espera de un hospital, estilo ilustración plana, colores suaves. Título: «Trae todas tus medicinas a la consulta». Cuatro pasos con icono: mete en una bolsa todo lo que tomas, incluidas cremas y gotas; añade lo que compras sin receta; trae la última receta; pregunta si puedes dejar alguno. Texto en castellano, grande y legible.</div>
+  <div class="watch step"><b>FÍJATE</b>Lee cada palabra de la imagen. Un acento mal puesto en un cartel del hospital se ve desde lejos.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="2"><div class="inner">
+  <div class="num">Parte VII · Editar<span class="t">IMAGEN</span></div>
+  <div class="statement">Cambia una cosa.<br><strong>Deja todo lo demás igual.</strong></div>
+  <div class="tools"><span>Gemini · Nano Banana</span><span>ChatGPT · editar</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>[Sube la infografía anterior] Mantén exactamente el mismo diseño y los mismos colores. Cambia solo el personaje: que sea una mujer mayor con bastón y su hija al lado. Después hazme la misma infografía en formato horizontal para la pantalla de la sala.</div>
+  <div class="watch step"><b>FÍJATE</b>Sube una foto tuya y pide «ponme con bata en un congreso». Ahora piensa en cuánto cuesta falsificar una foto.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="3"><div class="inner">
+  <div class="num">Parte VII · Vídeo y avatar<span class="t">EXTRA</span></div>
+  <div class="statement">De la imagen<br><strong>al vídeo con voz.</strong></div>
+  <div class="tools"><span>Gemini · Veo</span><span>Sora</span><span>HeyGen</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Vídeo de 8 segundos: una farmacéutica de hospital explica a un paciente mayor, con calma, cómo se organiza un pastillero semanal. Plano medio, luz natural, ambiente de consulta. Ella dice en castellano: «No hace falta tomar más pastillas para estar mejor cuidado».</div>
+  <div class="watch step"><b>FÍJATE</b>Si un vídeo puede hablar en nombre de alguien, verifica la fuente antes de creerlo. Y la identidad antes de actuar.</div>
+</div></section>
+
+<!-- ============ PARTE VIII · APP MÓVIL ============ -->
+<section class="slide chapter" data-mark="VIII" data-chapter="J2 · Parte VIII · App móvil"><div class="inner">
+  <div class="kicker">Jornada 2 · Parte VIII · Una app en tu móvil</div>
+  <div class="gigante">Tu app,<br><strong>en tu bolsillo.</strong></div>
+  <div class="sub">Describes la app, Replit la programa, y la abres en tu móvil escaneando un código QR. Sin tiendas de aplicaciones.</div>
+</div></section>
+
+<section class="slide steps"><div class="inner">
+  <div class="kicker">Cómo funciona</div>
+  <ul class="lista compact">
+    <li class="step"><span class="n">01 · REPLIT</span>Crea una cuenta en replit.com.<span class="meta">Elige «Mobile app»: el agente programa con Expo (React Native)</span></li>
+    <li class="step"><span class="n">02 · PROMPT</span>Describe la app en castellano.<span class="meta">El agente hace un plan, te lo enseña y lo programa</span></li>
+    <li class="step"><span class="n">03 · EXPO GO</span>Instala Expo Go en el móvil.<span class="meta">App gratuita · iPhone y Android</span></li>
+    <li class="step"><span class="n">04 · QR</span>Escanea el código de Replit.<span class="meta">La app se abre en tu móvil · cada cambio aparece en directo</span></li>
+  </ul>
+</div></section>
+
+<section class="slide demo steps" data-mark="1"><div class="inner">
+  <div class="num">Parte VIII · Construir<span class="t">REPLIT</span></div>
+  <div class="statement">Una app de bolsillo<br><strong>para la guardia.</strong></div>
+  <div class="tools"><span>Replit Agent</span><span>Expo</span><span>Expo Go</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Crea una app móvil para médicos de guardia de medicina interna. Pantallas: 1) escalas (Barthel, Charlson, CURB-65, CHA2DS2-VASc, HAS-BLED) con cálculo automático; 2) revisión rápida de medicación del anciano: marco fármacos y me avisa de los de riesgo de caídas y anticolinérgicos; 3) favoritos. Diseño limpio, botones grandes, modo oscuro para la noche, en castellano. Sin login y sin guardar datos de pacientes.</div>
+  <div class="watch step"><b>FÍJATE</b>Escanea el QR con Expo Go. Pide un cambio en Replit y mira cómo aparece en tu móvil sin hacer nada.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="2"><div class="inner">
+  <div class="num">Parte VIII · Probar como un clínico<span class="t">REPLIT</span></div>
+  <div class="statement">Una calculadora que falla<br><strong>es peor que no tenerla.</strong></div>
+  <div class="tools"><span>Replit Agent</span><span>Tus casos de siempre</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Añade a cada escala una pantalla de «Fuente» con la referencia original y los puntos de corte que usas. Después escribe pruebas automáticas con cinco casos de cada escala cuyo resultado conozcamos, ejecútalas y enséñame cuáles pasan.</div>
+  <div class="watch step"><b>FÍJATE</b>Mete tú tres pacientes reales de memoria (sin datos) y compara con lo que calcularías a mano. Esto es un prototipo, no un producto sanitario.</div>
+</div></section>
+
+<!-- ============ PARTE IX · MODELOS EN LOCAL ============ -->
+<section class="slide chapter" data-mark="IX" data-chapter="J2 · Parte IX · Modelos en local"><div class="inner">
+  <div class="kicker">Jornada 2 · Parte IX · Modelos en local</div>
+  <div class="gigante">Una IA que<br><strong>no sale de tu ordenador.</strong></div>
+  <div class="sub">Desconecta el wifi. Sigue funcionando. Ningún dato viaja a ningún sitio.</div>
+</div></section>
+
+<section class="slide steps"><div class="inner">
+  <div class="kicker">LM Studio</div>
+  <ul class="lista compact">
+    <li class="step"><span class="n">QUÉ ES</span>Un programa gratuito para descargar y usar modelos abiertos.<span class="meta">Mac, Windows y Linux · lmstudio.ai</span></li>
+    <li class="step"><span class="n">MODELOS</span>Gemma, Qwen, gpt-oss, Mistral, MedGemma.<span class="meta">Elige según la memoria del ordenador · 16 GB de RAM ya dan juego</span></li>
+    <li class="step"><span class="n">DOCUMENTOS</span>Chatea con tus PDF sin subirlos a ningún sitio.</li>
+    <li class="step"><span class="n">PEGA</span>Menos potente que los modelos de frontera.<span class="meta">Para extraer, resumir y anonimizar va de sobra · para razonar casos difíciles, no</span></li>
+  </ul>
+</div></section>
+
+<section class="slide demo steps" data-mark="1"><div class="inner">
+  <div class="num">Parte IX · Instalar y probar<span class="t">LM STUDIO</span></div>
+  <div class="statement">Descarga un modelo.<br><strong>Apaga el wifi. Pregunta.</strong></div>
+  <div class="tools"><span>LM Studio</span><span>Gemma 3</span><span>Qwen 3</span><span>gpt-oss-20b</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Explícame en tres frases qué son los criterios STOPP/START y pon dos ejemplos de cada uno. Después dime con qué seguridad lo sabes y qué parte podría estar desactualizada.</div>
+  <div class="watch step"><b>FÍJATE</b>Haz la misma pregunta a dos modelos de tamaños distintos. ¿Cuánto se nota? Mira la memoria que consume en la barra inferior.</div>
+</div></section>
+
+<section class="slide demo steps" data-mark="2"><div class="inner">
+  <div class="num">Parte IX · Anonimizar en local<span class="t">LM STUDIO</span></div>
+  <div class="statement">El texto con datos reales<br><strong>se queda en tu máquina.</strong></div>
+  <div class="tools"><span>LM Studio · sin conexión</span><span>Informe de alta ficticio</span></div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Anonimiza este informe de alta: sustituye nombres, NHC, fechas, direcciones, teléfonos y nombres de médicos por etiquetas [PACIENTE], [NHC], [FECHA], etc. Mantén intacta toda la información clínica. Al final, lista lo que has sustituido para que yo lo revise.</div>
+  <div class="watch step"><b>FÍJATE</b>Modelo local para anonimizar, modelo de frontera para razonar. Lo mejor de los dos mundos.</div>
+</div></section>
+
+<!-- ============ EXTRAS ============ -->
+<section class="slide chapter" data-mark="+" data-chapter="J2 · Extras"><div class="inner">
+  <div class="kicker">Jornada 2 · Si sobra tiempo</div>
+  <div class="gigante">Cinco cosas<br><strong>que impresionan.</strong></div>
+</div></section>
+
+<section class="slide steps"><div class="inner">
+  <div class="kicker">Extras</div>
+  <ul class="lista compact">
+    <li class="step"><span class="n">VOZ Y CÁMARA</span>Gemini Live o ChatGPT voz: enséñale un prospecto o un ECG con la cámara y habla con él.</li>
+    <li class="step"><span class="n">TRANSCRIBIR</span>Whisper en local: una sesión de una hora transcrita en minutos, sin salir del ordenador.</li>
+    <li class="step"><span class="n">NAVEGADOR</span>Agentes que usan la web por ti: Claude en Chrome, ChatGPT Atlas, Comet.</li>
+    <li class="step"><span class="n">CASO CLÍNICO</span>Un caso por fases con un modelo de frontera, y una segunda opinión con otro modelo.</li>
+    <li class="step"><span class="n">TU AVATAR</span>Un vídeo tuyo que no has grabado. HeyGen, con guion aprobado por ti.</li>
+  </ul>
+</div></section>
+
+<!-- ============ PARA LLEVAR ============ -->
+<section class="slide chapter" data-mark="" data-chapter="Reglas de oro"><div class="inner">
+  <div class="kicker">Para llevar</div>
+  <div class="gigante">Reglas de <strong>oro.</strong></div>
+</div></section>
+
+<section class="slide steps"><div class="inner">
+  <div class="kicker">Cinco reglas</div>
+  <ul class="lista">
+    <li class="step"><span class="n">01</span>Ningún dato identificable en una herramienta que tu centro no haya aprobado.</li>
+    <li class="step"><span class="n">02</span>Cada cifra, a su fuente. Con página.</li>
+    <li class="step"><span class="n">03</span>Usa el modelo más potente que tengas. Y en local, lo que no puede salir.</li>
+    <li class="step"><span class="n">04</span>Lo que programes, pruébalo con casos cuya respuesta conozcas.</li>
+    <li class="step"><span class="n">05</span>Declara el uso de IA. <strong>Y firma tú.</strong></li>
+  </ul>
+</div></section>
+
+<section class="slide impact"><div class="inner">
+  <div class="kicker" style="justify-content:center">El lunes</div>
+  <div class="statement">Elige una tarea que hagas cada semana.<br><strong>Hazla una vez con IA. Y compara.</strong></div>
+</div></section>
+
+<!-- ============ CIERRE ============ -->
+<section class="slide foto" data-chapter="Cierre" data-title="Arena"><img src="img/sand.jpg" alt="Granos de arena al atardecer"><div class="cap">Arena</div></section>
+<section class="slide foto" data-title="Silicio"><img src="img/gpu.jpg" alt="Un acelerador de IA"><div class="cap">Silicio</div></section>
+
+<section class="slide impact steps"><div class="inner">
+  <div class="statement">De la arena salió el silicio.<br>Del silicio, una demostración de Riemann.</div>
+  <div class="statement step" style="margin-top:4vh"><strong>Lo que hagamos con ella es cosa nuestra.</strong></div>
+</div></section>
+
+<section class="slide tis"><div class="inner">
+  <div>
+    <img class="masthead" src="img/sentinel-title.png" alt="The Independent Sentinel">
+    <div class="statement">No se puede vislumbrar el futuro<br><strong>sin entender el pasado.</strong></div>
+    <div class="sub">Historia, filosofía y todo lo que está pasando en la IA, desde 2019.<br><strong>theindependentsentinel.substack.com</strong> · javier@ncompany.es</div>
+  </div>
+  <img class="qr" src="img/sentinel-qr.png" alt="Código QR de The Independent Sentinel">
+</div></section>
+
+<section class="slide impact"><div class="inner">
+  <div class="gigante"><span class="crt-accent" data-text="Gracias" aria-hidden="true">Gracias</span>.</div>
+  <div class="sub">Javier Fuentes · N Company</div>
+</div></section>
+
+<div id="barra"></div><div id="pag"></div><div class="pie">HUIL · Taller de IA · noviembre 2026</div><div class="blackout"></div>
+
+<script>
+(() => {
+  'use strict';
+  const slides = [...document.querySelectorAll('.slide')];
+  let i = 0;
+  const barra = document.getElementById('barra'), pag = document.getElementById('pag');
+  const stepsOf = s => [...s.querySelectorAll('.step')];
+  function show(n, revealAll) {
+    n = Math.max(0, Math.min(slides.length - 1, n));
+    slides[i].classList.remove('on');
+    i = n; const s = slides[i];
+    stepsOf(s).forEach(st => st.classList.toggle('on', !!revealAll));
+    s.classList.add('on');
+    document.querySelectorAll('.film video').forEach(v => { if (!s.contains(v)) { v.pause(); v.closest('.film').classList.remove('playing'); } });
+    const film = s.querySelector('.film video, video');
+    if (film && s.classList.contains('film')) { film.currentTime = 0; film.play().then(() => s.classList.add('playing')).catch(() => {}); }
+    barra.style.width = ((i + 1) / slides.length * 100) + '%';
+    pag.textContent = (i + 1) + ' / ' + slides.length;
+    document.body.classList.toggle('dark-chrome', s.classList.contains('claro'));
+    document.body.classList.toggle('film-on', s.classList.contains('film'));
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  function next() {
+    const hidden = stepsOf(slides[i]).find(st => !st.classList.contains('on'));
+    if (hidden) hidden.classList.add('on'); else if (i < slides.length - 1) show(i + 1);
+  }
+  function prev() {
+    const shown = stepsOf(slides[i]).filter(st => st.classList.contains('on'));
+    if (shown.length) shown.at(-1).classList.remove('on'); else if (i > 0) show(i - 1, true);
+  }
+  // Chapter navigator (G)
+  const dlg = document.createElement('dialog'); dlg.className = 'nav';
+  dlg.innerHTML = '<h2>Ir a…</h2><div class="links"></div><p>→ / Espacio / AvPág: siguiente · ← / RePág: anterior · G: capítulos · F: pantalla completa · B: negro · M: movimiento · Inicio / Fin</p>';
+  slides.forEach((s, n) => { if (!s.dataset.chapter) return;
+    const b = document.createElement('button'); b.textContent = String(n + 1).padStart(2, '0') + '  ·  ' + s.dataset.chapter;
+    b.onclick = () => { dlg.close(); show(n); }; dlg.querySelector('.links').append(b); });
+  document.body.append(dlg);
+  document.addEventListener('keydown', e => {
+    if (dlg.open) return;
+    const k = e.key;
+    if (['ArrowRight','PageDown',' ','Enter','ArrowDown'].includes(k)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft','PageUp','ArrowUp','Backspace'].includes(k)) { e.preventDefault(); prev(); }
+    else if (k === 'Home') show(0); else if (k === 'End') show(slides.length - 1);
+    else if (k === 'g' || k === 'G') dlg.showModal();
+    else if (k === 'f' || k === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+    else if (k === 'b' || k === 'B' || k === '.') document.body.classList.toggle('is-blackout');
+    else if (k === 'm' || k === 'M') document.documentElement.classList.toggle('motion-off');
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('.copy,dialog,a')) return;
+    if (document.body.classList.contains('is-blackout')) { document.body.classList.remove('is-blackout'); return; }
+    const film = slides[i].classList.contains('film') && slides[i].querySelector('video');
+    if (film && e.clientX >= innerWidth * .2) { if (film.paused) { film.play(); slides[i].classList.add('playing'); } else { film.pause(); slides[i].classList.remove('playing'); } return; }
+    e.clientX < innerWidth * .2 ? prev() : next();
+  });
+  document.querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', async e => {
+    e.stopPropagation();
+    const text = btn.parentElement.textContent.replace(btn.textContent, '').trim();
+    try { await navigator.clipboard.writeText(text); }
+    catch { const t = document.createElement('textarea'); t.value = text; document.body.append(t); t.select(); document.execCommand('copy'); t.remove(); }
+    btn.textContent = 'COPIADO'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'COPIAR'; btn.classList.remove('ok'); }, 1600);
+  }));
+  const start = parseInt(location.hash.slice(1), 10);
+  slides[0].classList.add('on'); show(Number.isFinite(start) ? start - 1 : 0);
+})();
+</script>
+</body>
+</html>
