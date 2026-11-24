@@ -203,6 +203,12 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
 .p6 ul { list-style:none; padding:1.1vh .9vw 1.3vh; }
 .p6 li { font-size:clamp(13px,1.22vw,20px); line-height:1.38; color:#dfe3e8; padding:.32em 0 .32em 1em; position:relative; }
 .p6 li::before { content:''; position:absolute; left:0; top:.85em; width:.38em; height:.38em; border-radius:50%; background:var(--acento); }
+
+/* Prezi-style zoom */
+.seisp { position:relative; transform-origin:0 0; transition:transform .9s cubic-bezier(.65,0,.35,1); will-change:transform; }
+.seisp .p6 { transition:opacity .6s ease; }
+.seisp.zoomed .p6:not(.focus) { opacity:.18; }
+.slide:has(.seisp.zoomed) .kicker { opacity:0; transition:opacity .4s; }
 </style>
 </head>
 <body>
@@ -229,34 +235,34 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
   </ul>
 </div></section>
 
-<section class="slide steps" data-chapter="Cómo hablar con las máquinas"><div class="inner">
+<section class="slide" data-chapter="Cómo hablar con las máquinas"><div class="inner">
   <div class="kicker">Cómo hablar con las máquinas · las 6 P</div>
-  <div class="seisp">
-    <div class="p6 step"><h3>PETICIÓN <em>un verbo de acción</em></h3><ul>
+  <div class="zoomwrap"><div class="seisp" data-zoom>
+    <div class="p6"><h3>PETICIÓN <em>un verbo de acción</em></h3><ul>
       <li>Resume este protocolo de prevención de úlceras por presión</li>
       <li>Redacta el informe de alta de enfermería</li>
       <li>Crea una tabla con la pauta de insulina por glucemia</li></ul></div>
-    <div class="p6 step"><h3>PERSONA <em>con qué rol</em></h3><ul>
+    <div class="p6"><h3>PERSONA <em>con qué rol</em></h3><ul>
       <li>Actúa como internista revisando el tratamiento de un paciente mayor</li>
       <li>Responde como enfermera de práctica avanzada en heridas</li>
       <li>Explícalo como una enfermera a un paciente de 80 años y su hija</li></ul></div>
-    <div class="p6 step"><h3>PREMISAS <em>todo el contexto</em></h3><ul>
+    <div class="p6"><h3>PREMISAS <em>todo el contexto</em></h3><ul>
       <li>Paciente de 84 años, 11 fármacos, filtrado de 30 y una caída la semana pasada</li>
       <li>Es para la sesión de enfermería de la planta de Medicina Interna</li>
       <li>Lo van a leer residentes de primer año en su primera guardia</li></ul></div>
-    <div class="p6 step"><h3>PASOS <em>en qué orden</em></h3><ul>
+    <div class="p6"><h3>PASOS <em>en qué orden</em></h3><ul>
       <li>Primero, concilia la medicación del domicilio con la del ingreso</li>
       <li>Segundo, señala los fármacos de riesgo con criterios STOPP/START</li>
       <li>Por último, propón qué retirar y en qué orden</li></ul></div>
-    <div class="p6 step"><h3>PAUTAS <em>el marco</em></h3><ul>
+    <div class="p6"><h3>PAUTAS <em>el marco</em></h3><ul>
       <li>Máximo 200 palabras, sin siglas y en lenguaje para pacientes</li>
       <li>Cita la fuente de cada dato; si no lo sabes, dilo</li>
       <li>Ningún dato que identifique al paciente</li></ul></div>
-    <div class="p6 step"><h3>PLANTILLA <em>dale un ejemplo</em></h3><ul>
+    <div class="p6"><h3>PLANTILLA <em>dale un ejemplo</em></h3><ul>
       <li>Sigue el formato ISBAR del relevo de turno</li>
       <li>Usa la estructura del informe de alta que te adjunto</li>
       <li>Devuélvelo en una tabla: fármaco · motivo · acción</li></ul></div>
-  </div>
+  </div></div>
 </div></section>
 
 <!-- ======================================================= -->
@@ -837,6 +843,7 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
     slides[i].classList.remove('on');
     i = n; const s = slides[i];
     stepsOf(s).forEach(st => st.classList.toggle('on', !!revealAll));
+    s.querySelectorAll('[data-zoom]').forEach(g => { g.dataset.z = revealAll ? g.children.length : -1; zoomApply(g); });
     s.classList.add('on');
     document.querySelectorAll('.film video').forEach(v => { if (!s.contains(v)) { v.pause(); v.closest('.film').classList.remove('playing'); } });
     const film = s.querySelector('.film video, video');
@@ -847,11 +854,35 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
     document.body.classList.toggle('film-on', s.classList.contains('film'));
     history.replaceState(null, '', '#' + (i + 1));
   }
+
+  // Prezi-style zoom: overview -> each card -> overview -> next slide
+  function zoomApply(g) {
+    const k = +g.dataset.z, cards = [...g.children];
+    cards.forEach((c, n) => c.classList.toggle('focus', n === k));
+    if (k < 0 || k >= cards.length) { g.classList.remove('zoomed'); g.style.transform = ''; return; }
+    const prevT = g.style.transform, prevTr = g.style.transition;
+    g.style.transition = 'none'; g.style.transform = 'none';
+    const G = g.getBoundingClientRect();
+    g.style.transform = prevT; void g.offsetWidth; g.style.transition = prevTr;
+    const c = cards[k], sc = Math.min(innerWidth * .8 / c.offsetWidth, innerHeight * .72 / c.offsetHeight);
+    const tx = innerWidth / 2 - G.left - sc * (c.offsetLeft + c.offsetWidth / 2);
+    const ty = innerHeight / 2 - G.top - sc * (c.offsetTop + c.offsetHeight / 2);
+    g.classList.add('zoomed'); g.style.transform = `translate(${tx}px,${ty}px) scale(${sc})`;
+  }
+  function zoomStep(dir) {
+    const g = slides[i].querySelector('[data-zoom]'); if (!g) return false;
+    const n = g.children.length, z = g.dataset.z === undefined ? -1 : +g.dataset.z, nz = z + dir;
+    if (nz < -1 || nz > n) return false;
+    g.dataset.z = nz; zoomApply(g); return true;
+  }
+  addEventListener('resize', () => { const g = slides[i].querySelector('[data-zoom]'); if (g) zoomApply(g); });
   function next() {
+    if (zoomStep(1)) return;
     const hidden = stepsOf(slides[i]).find(st => !st.classList.contains('on'));
     if (hidden) hidden.classList.add('on'); else if (i < slides.length - 1) show(i + 1);
   }
   function prev() {
+    if (zoomStep(-1)) return;
     const shown = stepsOf(slides[i]).filter(st => st.classList.contains('on'));
     if (shown.length) shown.at(-1).classList.remove('on'); else if (i > 0) show(i - 1, true);
   }
