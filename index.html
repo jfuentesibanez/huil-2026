@@ -194,6 +194,15 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
 .chapter.jornada .sub { color:#ffd6dc; }
 .chapter.jornada .crt-accent { --crt-color:#ffffff; --crt-stripe:#ffd9cf; }
 .dos-col .dos { align-items:start; margin-top:2vh; }
+
+/* 6P prompt grid */
+.seisp { display:grid; grid-template-columns:repeat(3,1fr); gap:1.6vh 1.4vw; margin-top:1vh; }
+.p6 { border:1px solid #3a2a2e; border-radius:6px; overflow:hidden; background:#16191d; }
+.p6 h3 { background:var(--acento-hondo); color:#fff; font-size:clamp(16px,1.6vw,26px); font-weight:650; letter-spacing:.08em; padding:.45em .8em; display:flex; justify-content:space-between; align-items:baseline; }
+.p6 h3 em { font-style:normal; font-weight:400; font-size:.62em; letter-spacing:.04em; opacity:.85; text-transform:none; }
+.p6 ul { list-style:none; padding:1.1vh .9vw 1.3vh; }
+.p6 li { font-size:clamp(13px,1.22vw,20px); line-height:1.38; color:#dfe3e8; padding:.32em 0 .32em 1em; position:relative; }
+.p6 li::before { content:''; position:absolute; left:0; top:.85em; width:.38em; height:.38em; border-radius:50%; background:var(--acento); }
 </style>
 </head>
 <body>
@@ -218,6 +227,36 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
     <li class="step"><span class="n">JORNADA 1</span>Investigar, entender y <strong>construir</strong>.<span class="meta">Del buscador al borrador · NotebookLM a fondo · programar con Claude sin saber programar</span></li>
     <li class="step"><span class="n">JORNADA 2</span>La IA dentro de <strong>tus herramientas</strong>.<span class="meta">Copilot · IA en Excel · presentaciones · imágenes · una app en tu móvil · modelos en tu ordenador</span></li>
   </ul>
+</div></section>
+
+<section class="slide steps" data-chapter="Cómo hablar con las máquinas"><div class="inner">
+  <div class="kicker">Cómo hablar con las máquinas · las 6 P</div>
+  <div class="seisp">
+    <div class="p6 step"><h3>PETICIÓN <em>un verbo de acción</em></h3><ul>
+      <li>Resume este protocolo de prevención de úlceras por presión</li>
+      <li>Redacta el informe de alta de enfermería</li>
+      <li>Crea una tabla con la pauta de insulina por glucemia</li></ul></div>
+    <div class="p6 step"><h3>PERSONA <em>con qué rol</em></h3><ul>
+      <li>Actúa como internista revisando el tratamiento de un paciente mayor</li>
+      <li>Responde como enfermera de práctica avanzada en heridas</li>
+      <li>Explícalo como una enfermera a un paciente de 80 años y su hija</li></ul></div>
+    <div class="p6 step"><h3>PREMISAS <em>todo el contexto</em></h3><ul>
+      <li>Paciente de 84 años, 11 fármacos, filtrado de 30 y una caída la semana pasada</li>
+      <li>Es para la sesión de enfermería de la planta de Medicina Interna</li>
+      <li>Lo van a leer residentes de primer año en su primera guardia</li></ul></div>
+    <div class="p6 step"><h3>PASOS <em>en qué orden</em></h3><ul>
+      <li>Primero, concilia la medicación del domicilio con la del ingreso</li>
+      <li>Segundo, señala los fármacos de riesgo con criterios STOPP/START</li>
+      <li>Por último, propón qué retirar y en qué orden</li></ul></div>
+    <div class="p6 step"><h3>PAUTAS <em>el marco</em></h3><ul>
+      <li>Máximo 200 palabras, sin siglas y en lenguaje para pacientes</li>
+      <li>Cita la fuente de cada dato; si no lo sabes, dilo</li>
+      <li>Ningún dato que identifique al paciente</li></ul></div>
+    <div class="p6 step"><h3>PLANTILLA <em>dale un ejemplo</em></h3><ul>
+      <li>Sigue el formato ISBAR del relevo de turno</li>
+      <li>Usa la estructura del informe de alta que te adjunto</li>
+      <li>Devuélvelo en una tabla: fármaco · motivo · acción</li></ul></div>
+  </div>
 </div></section>
 
 <!-- ======================================================= -->
