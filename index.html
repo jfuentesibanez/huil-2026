@@ -210,11 +210,25 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
 .seisp.zoomed .p6:not(.focus) { opacity:.18; }
 .slide:has(.seisp.zoomed) .kicker { opacity:0; transition:opacity .4s; }
 </style>
+<link rel="stylesheet" href="cinematics.css">
+<style>
+/* HUIL logo on cover */
+.logo-huil { position:absolute; left:8vw; top:7vh; height:clamp(52px,7vh,84px); width:auto; background:#fff; padding:10px 18px; border-radius:6px; z-index:3; }
+/* HUIL tint for cinematic scenes */
+.workflow-recap::before { content:''; position:absolute; inset:0; z-index:0; background:radial-gradient(ellipse 60% 70% at 85% 60%,#c8102e40,transparent 70%); }
+.slide.research-tour { --acento:#ff8a94; }
+.research-tools { border-top-color:#ff8a9440; }
+.research-progress .visited { background:#ff8a94; }
+.workflow-recap { --acento:#ff8a94; }
+.workflow-wires path { stroke:#ff8a945c; } .workflow-wires .travel { stroke:#ff8a94; }
+.workflow-hub span { color:#a3122b; }
+.human-check b { color:#ff8a94; } .human-check::before { background:linear-gradient(#ff8a9480,#ff8a94); }
+</style>
 </head>
 <body>
 
 <!-- ============ PORTADA ============ -->
-<section class="slide cover" data-chapter="Portada"><div class="inner">
+<section class="slide cover" data-chapter="Portada"><img class="logo-huil" src="img/logo-huil.png" alt="Hospital Universitario Infanta Leonor · SaludMadrid" onerror="this.remove()"><div class="inner">
   <div class="kicker">Hospital Universitario Infanta Leonor · Taller de IA · dos jornadas · noviembre 2026</div>
   <div class="gigante">IA en el hospital:<br><strong>manos a la <span class="crt-accent" data-text="obra" aria-hidden="true">obra</span>.</strong></div>
   <div class="presenter"><b>Javier Fuentes</b><span>Taller práctico · N Company</span></div>
@@ -290,34 +304,62 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
   <div class="sub">Una pregunta, muchas herramientas. Ninguna lo hace todo bien: se recoge de varias y se consolida.</div>
 </div></section>
 
-<section class="slide steps"><div class="inner">
-  <div class="kicker">Investigación distribuida · el mapa</div>
-  <ul class="lista compact">
-    <li class="step"><span class="n">01</span>Búsqueda general<span class="meta">Google modo IA · Perplexity · Copilot</span></li>
-    <li class="step"><span class="n">02</span>Evidencia<span class="meta">OpenEvidence · Consensus · Elicit · Claude con PubMed</span></li>
-    <li class="step"><span class="n">03</span>Exploración y biblioteca<span class="meta">Litmaps · Zotero · NotebookLM</span></li>
-    <li class="step"><span class="n">04</span>Consolidación y redacción<span class="meta">Deep Research · ChatGPT, Claude o Copilot dentro de Word</span></li>
-    <li class="step"><span class="n">05</span>Verificación<span class="meta">Cada cita existe y dice lo que afirmas</span></li>
-  </ul>
-</div></section>
+<section class="slide steps research-tour" data-chapter="J1 · El recorrido de investigación" data-title="De la pregunta clínica al borrador">
+  <img class="research-photo" src="img/clinical-desk-tour.jpg" alt="Escena ilustrativa de una mesa de investigación clínica: un buscador de artículos, un libro abierto, una carpeta de fuentes, un borrador en un portátil y una mano comprobando referencias">
+  <div class="research-shade" aria-hidden="true"></div>
+  <div class="research-intro">
+    <div class="research-intro-title"><div class="kicker">Investigación distribuida · el recorrido</div><h2>Una pregunta <strong>clínica.</strong></h2></div>
+    <p>De la pregunta al borrador. Cinco pasos; cada cifra, a su fuente.</p>
+  </div>
+  <div class="research-beat step" data-view="right" data-frame=".20 .37 1.65">
+    <div class="kicker">01 · Búsqueda general</div><h2>Empieza por<br><strong>la pregunta.</strong></h2>
+    <p>El primer mapa del tema.<br>Todavía no es una fuente para citar.</p>
+    <div class="research-tools">Google modo IA · Perplexity · Copilot</div>
+  </div>
+  <div class="research-beat step" data-view="right" data-frame=".28 .79 2.1">
+    <div class="kicker">02 · Evidencia</div><h2>Vuelve al<br><strong>artículo original.</strong></h2>
+    <p>¿De dónde sale cada cifra?<br>¿Qué fuerza tiene la evidencia?</p>
+    <div class="research-tools">OpenEvidence · Consensus · Elicit<br>Claude con PubMed</div>
+  </div>
+  <div class="research-beat step" data-view="left" data-frame=".57 .67 2.7">
+    <div class="kicker">03 · Exploración y biblioteca</div><h2>Reúne fuentes<br><strong>que puedas auditar.</strong></h2>
+    <p>Sigue las citas.<br>Guarda los originales.</p>
+    <div class="research-tools">Litmaps · Zotero · NotebookLM</div>
+  </div>
+  <div class="research-beat step" data-view="left" data-frame=".80 .41 1.8">
+    <div class="kicker">04 · Consolidación y redacción</div><h2>De las fuentes<br><strong>al borrador.</strong></h2>
+    <p>Contrasta las cifras.<br>Redacta con referencias.</p>
+    <div class="research-tools">Deep Research<br>ChatGPT, Claude o Copilot dentro de Word</div>
+  </div>
+  <div class="research-beat step" data-view="left" data-frame=".85 .78 2.6">
+    <div class="kicker">05 · Verificación</div><h2>Cada cita existe.<br><strong>Y dice lo que afirmas.</strong></h2>
+    <p>Comprueba el DOI,<br>el dato y la página.</p>
+    <div class="research-tools">La comprobación final es tuya.</div>
+  </div>
+  <div class="research-beat step" data-view="wide">
+    <div class="kicker">El recorrido completo</div><h2>Cinco pasos.<br><strong>Tu criterio.</strong></h2>
+    <p>Ninguna herramienta lo hace todo bien.<br>Recoge, contrasta y comprueba.</p>
+  </div>
+  <div class="research-progress" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+</section>
 
 <section class="slide"><div class="inner">
   <div class="kicker">La pregunta de investigación</div>
-  <div class="statement">En mayores de 75 años polimedicados que ingresan, ¿<strong>revisar y retirar fármacos</strong> con criterios STOPP/START reduce reingresos y caídas?</div>
+  <div class="statement">En mayores de 70 años que ingresan, ¿un <strong>programa multicomponente sin fármacos</strong> previene el delirium?</div>
   <div class="capas">
-    <div class="capa"><h3>P · POBLACIÓN</h3><p>≥ 75 años, ≥ 5 fármacos, ingreso hospitalario.</p></div>
-    <div class="capa"><h3>I · INTERVENCIÓN</h3><p>Deprescripción guiada por STOPP/START.</p></div>
+    <div class="capa"><h3>P · POBLACIÓN</h3><p>≥ 70 años ingresados en planta médica o quirúrgica.</p></div>
+    <div class="capa"><h3>I · INTERVENCIÓN</h3><p>Orientación, movilización precoz, sueño, hidratación, gafas y audífonos (tipo HELP).</p></div>
     <div class="capa"><h3>C · COMPARADOR</h3><p>Atención habitual.</p></div>
-    <div class="capa"><h3>O · RESULTADO</h3><p>Reingresos, caídas, reacciones adversas, mortalidad.</p></div>
+    <div class="capa"><h3>O · RESULTADO</h3><p>Incidencia de delirium, caídas, estancia e institucionalización.</p></div>
   </div>
-  <div class="src-line">Cambiadla por una pregunta de vuestro servicio. El método es el mismo.</div>
+  <div class="src-line">Una pregunta de médicos y de enfermería. Cambiadla por una vuestra: el método es el mismo.</div>
 </div></section>
 
 <section class="slide demo steps" data-mark="1"><div class="inner">
   <div class="num">Parte I · Búsqueda general<span class="t">PASO 01</span></div>
   <div class="statement">Lanza la misma pregunta, <strong>con las mismas palabras</strong>, a dos buscadores.</div>
   <div class="tools"><span>Google · modo IA</span><span>Perplexity</span><span>Copilot · búsqueda web</span></div>
-  <div class="prompt step"><button class="copy" type="button">COPIAR</button>En pacientes mayores de 75 años polimedicados que ingresan en el hospital, ¿la deprescripción guiada por criterios STOPP/START reduce los reingresos, las caídas y las reacciones adversas frente a la atención habitual? Resume los ensayos clínicos principales con su tamaño muestral y su resultado. Cita las fuentes.</div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>En pacientes mayores de 70 años hospitalizados, ¿las intervenciones multicomponente no farmacológicas (como el Hospital Elder Life Program) reducen la incidencia de delirium, las caídas y la estancia frente a la atención habitual? ¿Qué componentes aplica enfermería y cuáles el médico? Resume los estudios principales con su tamaño muestral y su resultado. Cita las fuentes.</div>
   <div class="watch step"><b>FÍJATE</b>¿Citan los mismos ensayos? ¿Coinciden en si funciona? Apunta las diferencias. Sirven para el mapa, no para citar.</div>
 </div></section>
 
@@ -325,7 +367,7 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
   <div class="num">Parte I · Evidencia<span class="t">PASO 02</span></div>
   <div class="statement">La misma pregunta, a herramientas que <strong>solo responden con artículos</strong>.</div>
   <div class="tools"><span>OpenEvidence</span><span>Consensus</span><span>Elicit</span><span>Claude + conector PubMed</span></div>
-  <div class="prompt step"><button class="copy" type="button">COPIAR</button>[Pega la pregunta anterior] Gradúa la fuerza de la evidencia de cada afirmación, distingue ensayo aleatorizado, análisis secundario y estudio observacional, y enlaza cada cifra a su artículo.</div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>[Pega la pregunta anterior] Gradúa la fuerza de la evidencia de cada afirmación, distingue ensayo aleatorizado, estudio antes-después y metaanálisis, y enlaza cada cifra a su artículo.</div>
   <div class="watch step"><b>FÍJATE</b>Las herramientas de evidencia matizan. ¿Cuál es más prudente? Deja Elicit trabajando en modo profundo: lo recogemos luego.</div>
 </div></section>
 
@@ -333,8 +375,8 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
   <div class="num">Parte I · Exploración<span class="t">PASO 03</span></div>
   <div class="statement">Parte de un artículo semilla y <strong>sigue la red de citas</strong>.</div>
   <div class="tools"><span>Litmaps</span><span>ResearchRabbit</span><span>Zotero</span></div>
-  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Blum MR, et al. Optimizing therapy to prevent avoidable hospital admissions in multimorbid older adults (OPERAM): cluster randomised controlled trial. BMJ. 2021;374:n1585. DOI: 10.1136/bmj.n1585</div>
-  <div class="watch step"><b>FÍJATE</b>A la derecha, lo más reciente; arriba, lo más citado. ¿Aparece SENATOR? Lo que te convenza, a Zotero.</div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Inouye SK, et al. A multicomponent intervention to prevent delirium in hospitalized older patients. N Engl J Med. 1999;340(9):669-76. DOI: 10.1056/NEJM199903043400901</div>
+  <div class="watch step"><b>FÍJATE</b>A la derecha, lo más reciente; arriba, lo más citado. ¿Aparece el metaanálisis de Hshieh sobre HELP? Lo que te convenza, a Zotero.</div>
 </div></section>
 
 <section class="slide demo steps" data-mark="4"><div class="inner">
@@ -357,7 +399,7 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
   <div class="num">Parte I · Redacción<span class="t">PASO 04</span></div>
   <div class="statement">Redacta donde escribes:<br><strong>la IA dentro de Word.</strong></div>
   <div class="tools"><span>Copilot en Word</span><span>Claude en Word</span><span>ChatGPT en Word</span></div>
-  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Con los documentos adjuntos, redacta el borrador de una revisión narrativa para Revista Clínica Española, siguiendo sus normas para autores: resumen estructurado, puntos clave, tabla de evidencia, referencias con DOI y declaración de uso de IA. Deja entre corchetes lo que solo pueden rellenar los autores.</div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Con los documentos adjuntos, redacta el borrador de una revisión narrativa para la Revista Española de Geriatría y Gerontología, siguiendo sus normas para autores: resumen estructurado, puntos clave, tabla de evidencia, referencias con DOI y declaración de uso de IA. Deja entre corchetes lo que solo pueden rellenar los autores.</div>
   <div class="watch step"><b>FÍJATE</b>Escribe sobre el documento para que lo coedites. Es un borrador, no un artículo.</div>
 </div></section>
 
@@ -411,7 +453,7 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
   <div class="num">Parte II · Montar el cuaderno<span class="t">NOTEBOOKLM</span></div>
   <div class="statement">Mete los artículos de esta mañana<br><strong>y pregunta solo a ellos.</strong></div>
   <div class="tools"><span>notebooklm.google.com</span><span>PDF de Zotero</span><span>Descubrir fuentes</span></div>
-  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Usa solo las fuentes cargadas. ¿Qué intervenciones de deprescripción han reducido reingresos y cuáles no? Para cada estudio, dame el resultado principal y cita el fragmento exacto. Si las fuentes no permiten responder algo, dilo.</div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Usa solo las fuentes cargadas. ¿Qué componentes de los programas de prevención del delirium han demostrado beneficio y cuáles no? Para cada estudio, dame el resultado principal y cita el fragmento exacto. Si las fuentes no permiten responder algo, dilo.</div>
   <div class="watch step"><b>FÍJATE</b>Pincha en tres citas. ¿Te llevan al párrafo que dice lo que afirma?</div>
 </div></section>
 
@@ -419,7 +461,7 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
   <div class="num">Parte II · Resumen en audio y vídeo<span class="t">NOTEBOOKLM</span></div>
   <div class="statement">Tus artículos, en un pódcast<br><strong>para el coche.</strong></div>
   <div class="tools"><span>Resumen en audio</span><span>Resumen en vídeo</span><span>Personalizar</span></div>
-  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Los oyentes son médicos internistas y geriatras. Céntrate en lo que cambia la práctica: qué fármacos retirar primero, en qué pacientes y con qué evidencia. Discute los ensayos negativos y por qué pudieron fallar. Duración corta. En castellano.</div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Los oyentes son médicos y enfermeras de planta. Céntrate en lo que cambia la práctica: qué hace enfermería en cada turno, qué indica el médico y con qué evidencia. Discute los estudios negativos y por qué pudieron fallar. Duración corta. En castellano.</div>
   <div class="watch step"><b>FÍJATE</b>Escucha dos minutos. ¿Exagera algo? ¿Suena a congreso o a tertulia? Con el mismo cuaderno, prueba el resumen en vídeo.</div>
 </div></section>
 
@@ -427,7 +469,7 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
   <div class="num">Parte II · Docencia<span class="t">NOTEBOOKLM</span></div>
   <div class="statement">Mapa mental, tarjetas<br><strong>y un examen para residentes.</strong></div>
   <div class="tools"><span>Mapa mental</span><span>Tarjetas</span><span>Cuestionario</span><span>Guía de estudio</span></div>
-  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Crea un cuestionario de 10 preguntas tipo test para residentes de primer año sobre deprescripción en el anciano. Cuatro opciones por pregunta, una correcta, y la explicación de cada respuesta con su cita. Que tres preguntas sean casos clínicos breves.</div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Crea un cuestionario de 10 preguntas tipo test para residentes y enfermeras de nueva incorporación sobre prevención y detección del delirium. Cuatro opciones por pregunta, una correcta, y la explicación de cada respuesta con su cita. Que tres preguntas sean casos clínicos breves.</div>
   <div class="watch step"><b>FÍJATE</b>¿Hay alguna pregunta con dos respuestas defendibles? Ese es el error típico. Revisa antes de repartirlo.</div>
 </div></section>
 
@@ -496,9 +538,29 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
   <div class="watch step"><b>FÍJATE</b>Una skill es un prompt largo que no quieres repetir. El agente que viene ahora la puede usar.</div>
 </div></section>
 
-<section class="slide impact steps"><div class="inner">
-  <div class="statement">Todo esto, paso a paso, nos ha llevado el día entero.</div>
-  <div class="statement step" style="margin-top:4vh"><strong>Ahora, en una sola instrucción.</strong></div>
+<section class="slide workflow-recap" data-scene-state="0" data-chapter="J1 · De los pasos al agente"><div class="inner">
+  <div class="kicker">El mismo trabajo · otra forma de hacerlo</div>
+  <div class="workflow-heading" aria-live="polite">
+    <h2>Todo esto, paso a paso,<br>nos ha llevado el día entero.</h2>
+    <h2 aria-hidden="true">Ahora, <strong>en una sola instrucción.</strong></h2>
+  </div>
+  <div class="workflow-stage">
+    <svg class="workflow-wires" viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M100 168 Q100 220 500 220 M285 64 Q285 220 500 220 M500 32 V220 M715 64 Q715 220 500 220 M900 168 Q900 220 500 220"/>
+      <path class="travel" pathLength="100" d="M100 168 Q100 220 500 220"/>
+      <path class="travel" pathLength="100" d="M285 64 Q285 220 500 220"/>
+      <path class="travel" pathLength="100" d="M500 32 V220"/>
+      <path class="travel" pathLength="100" d="M715 64 Q715 220 500 220"/>
+      <path class="travel" pathLength="100" d="M900 168 Q900 220 500 220"/>
+    </svg>
+    <div class="workflow-node" style="--x:10%;--y:42%"><span class="node-dot">01</span><b>Búsqueda general</b><small>Google modo IA · Perplexity</small></div>
+    <div class="workflow-node" style="--x:28.5%;--y:16%"><span class="node-dot">02</span><b>Evidencia</b><small>OpenEvidence · Consensus · Elicit</small></div>
+    <div class="workflow-node" style="--x:50%;--y:8%"><span class="node-dot">03</span><b>NotebookLM<br>y biblioteca</b><small>Litmaps · Zotero · NotebookLM</small></div>
+    <div class="workflow-node" style="--x:71.5%;--y:16%"><span class="node-dot">04</span><b>Consolidación<br>y redacción</b><small>Deep Research · Word</small></div>
+    <div class="workflow-node" style="--x:90%;--y:42%"><span class="node-dot">05</span><b>Verificación</b><small>Cada cita existe y dice lo que afirmas</small></div>
+    <div class="workflow-hub" aria-hidden="true"><span>BORRADOR DE REVISIÓN</span><b>Evidencia reunida.<br>Lista para comprobar.</b><small>Una carpeta · Una instrucción · Un agente</small></div>
+    <div class="human-check" aria-hidden="true"><b>¿Lo firmarías?</b><span>El agente lo prepara. Tú lo compruebas.</span></div>
+  </div>
 </div></section>
 
 <section class="slide demo steps" data-mark="A" data-chapter="J1 · El agente"><div class="inner">
@@ -581,7 +643,7 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
   <div class="num">Parte IV · Researcher y Analyst<span class="t">COPILOT</span></div>
   <div class="statement">El Deep Research de ayer,<br><strong>en Copilot.</strong></div>
   <div class="tools"><span>Copilot · Researcher</span><span>Copilot · Analyst</span></div>
-  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Researcher: prepara un informe sobre deprescripción en mayores de 75 años hospitalizados. Combina la evidencia publicada con lo que tengamos en correos y documentos del servicio sobre el tema. Separa claramente lo que viene de fuera de lo que viene de dentro.</div>
+  <div class="prompt step"><button class="copy" type="button">COPIAR</button>Researcher: prepara un informe sobre prevención del delirium en mayores hospitalizados. Combina la evidencia publicada con lo que tengamos en correos y documentos del servicio sobre el tema. Separa claramente lo que viene de fuera de lo que viene de dentro.</div>
   <div class="watch step"><b>FÍJATE</b>Compáralo con el informe de ayer de ChatGPT o Gemini. ¿Cita lo mismo? ¿Cuál es más prudente?</div>
 </div></section>
 
@@ -807,8 +869,15 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
 </div></section>
 
 <!-- ============ CIERRE ============ -->
-<section class="slide foto" data-chapter="Cierre" data-title="Arena"><img src="img/sand.jpg" alt="Granos de arena al atardecer"><div class="cap">Arena</div></section>
-<section class="slide foto" data-title="Silicio"><img src="img/gpu.jpg" alt="Un acelerador de IA"><div class="cap">Silicio</div></section>
+<section class="slide material-scene sand-scene" data-chapter="Cierre" data-title="Arena"><img class="material-still" src="img/sand-cinematic.jpg" alt="Un grano de cuarzo entre la arena, iluminado en ámbar"></section>
+<section class="slide material-scene silicon-scene" data-title="Silicio">
+  <img class="material-still" src="img/silicon-cinematic.jpg" alt="Un acelerador de IA con un chip de silicio iluminado en azul">
+  <div class="material-transition" aria-hidden="true" hidden>
+    <img class="transition-chip" src="img/silicon-cinematic.jpg" alt="">
+    <img class="transition-macro" src="img/silicon-macro.jpg" alt="">
+    <img class="transition-sand" src="img/sand-cinematic.jpg" alt="">
+  </div>
+</section>
 
 <section class="slide impact steps"><div class="inner">
   <div class="statement">De la arena salió el silicio.<br>Del silicio, una demostración de Riemann.</div>
@@ -831,6 +900,7 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
 
 <div id="barra"></div><div id="pag"></div><div class="pie">HUIL · Taller de IA · noviembre 2026</div><div class="blackout"></div>
 
+<script src="cinematics.js"></script>
 <script>
 (() => {
   'use strict';
@@ -840,11 +910,14 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
   const stepsOf = s => [...s.querySelectorAll('.step')];
   function show(n, revealAll) {
     n = Math.max(0, Math.min(slides.length - 1, n));
+    const previous = slides[i].classList.contains('on') ? slides[i] : null;
+    window.rocheCinematics.leave(slides[i]);
     slides[i].classList.remove('on');
     i = n; const s = slides[i];
     stepsOf(s).forEach(st => st.classList.toggle('on', !!revealAll));
     s.querySelectorAll('[data-zoom]').forEach(g => { g.dataset.z = revealAll ? g.children.length : -1; zoomApply(g); });
     s.classList.add('on');
+    window.rocheCinematics.enter(s, { previous, revealAll:!!revealAll });
     document.querySelectorAll('.film video').forEach(v => { if (!s.contains(v)) { v.pause(); v.closest('.film').classList.remove('playing'); } });
     const film = s.querySelector('.film video, video');
     if (film && s.classList.contains('film')) { film.currentTime = 0; film.play().then(() => s.classList.add('playing')).catch(() => {}); }
@@ -877,11 +950,13 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
   }
   addEventListener('resize', () => { const g = slides[i].querySelector('[data-zoom]'); if (g) zoomApply(g); });
   function next() {
+    if (window.rocheCinematics.next(slides[i])) return;
     if (zoomStep(1)) return;
     const hidden = stepsOf(slides[i]).find(st => !st.classList.contains('on'));
     if (hidden) hidden.classList.add('on'); else if (i < slides.length - 1) show(i + 1);
   }
   function prev() {
+    if (window.rocheCinematics.prev(slides[i])) return;
     if (zoomStep(-1)) return;
     const shown = stepsOf(slides[i]).filter(st => st.classList.contains('on'));
     if (shown.length) shown.at(-1).classList.remove('on'); else if (i > 0) show(i - 1, true);
@@ -902,7 +977,7 @@ dialog.nav p { margin-top:18px; font:13px var(--mono); color:#9aa; line-height:1
     else if (k === 'g' || k === 'G') dlg.showModal();
     else if (k === 'f' || k === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
     else if (k === 'b' || k === 'B' || k === '.') document.body.classList.toggle('is-blackout');
-    else if (k === 'm' || k === 'M') document.documentElement.classList.toggle('motion-off');
+    else if (k === 'm' || k === 'M') { document.documentElement.classList.toggle('motion-off'); window.rocheCinematics.motionChanged(); }
   });
   document.addEventListener('click', e => {
     if (e.target.closest('.copy,dialog,a')) return;
